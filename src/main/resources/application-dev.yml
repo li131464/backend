@@ -1,9 +1,28 @@
 spring:
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/handsome_dev?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8&allowMultiQueries=true
+    url: jdbc:mysql://127.0.0.1:3306/handsome_dev?useUnicode=true&characterEncoding=utf-8&useSSL=false&serverTimezone=GMT%2B8&allowMultiQueries=true
     username: root
-    password: 123456
+    password: 12345678
+  
+  # DevTools 热重载配置
+  devtools:
+    restart:
+      # 启用热重载
+      enabled: true
+      # 排除不需要重启的目录
+      exclude: static/**,public/**,templates/**,META-INF/maven/**,META-INF/resources/**
+      # 额外监控的目录
+      additional-paths: src/main/java
+      # 重启触发文件变化的轮询时间
+      poll-interval: 1000
+      # 静默期，文件变化后等待时间再重启
+      quiet-period: 400
+    livereload:
+      # 启用LiveReload
+      enabled: true
+      # LiveReload服务器端口
+      port: 35729
     
 # 日志配置
 logging:
