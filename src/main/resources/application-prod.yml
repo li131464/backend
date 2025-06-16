@@ -1,0 +1,24 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/handsome_prod?useUnicode=true&characterEncoding=utf-8&useSSL=true&serverTimezone=GMT%2B8&allowMultiQueries=true
+    username: ${DB_USERNAME:root}
+    password: ${DB_PASSWORD:123456}
+    
+# 生产环境日志配置
+logging:
+  level:
+    com.fyp.handsome: info
+    root: warn
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+  file:
+    name: logs/handsome.log
+    max-size: 10MB
+    max-history: 30
+
+# MyBatis Plus 生产环境配置
+mybatis-plus:
+  configuration:
+    # 生产环境不打印SQL
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl 
