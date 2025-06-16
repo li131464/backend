@@ -1,0 +1,45 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+### 核心框架
+- **Spring Boot**: 版本 3.4.5
+- **Java**: 版本 21
+
+### 数据库与持久层
+- **MySQL**: 数据库（通过mysql-connector-j驱动连接）
+- **MyBatis Plus**: 版本 3.5.5（持久层框架，增强版MyBatis）
+
+### 工具库
+- **Lombok**: 用于简化Java代码，减少模板代码
+
+### 项目构建工具
+- **Maven**: 项目依赖管理和构建工具
+### 项目结构特点
+- 使用标准的Spring Boot项目结构
+- 采用MVC架构模式
+- 包含以下主要模块：
+  - controller: 控制器层，处理HTTP请求
+  - service: 业务逻辑层
+  - dao: 数据访问层
+  - entity: 实体类
+  - dto: 数据传输对象
+  - config: 配置类
+  - exception: 异常处理
+  - util: 工具类
+
+### API设计
+- 根据文档，使用RESTful API设计风格
+- 统一的JSON响应格式
+
+这个项目是一个基于Spring Boot的后端应用，使用MyBatis Plus作为ORM框架与MySQL数据库交互。项目使用了Java 21本，并且遵循了常见的项目分层结构
+
+
+2. 项目使用Lombok简化代码：
+```
+import lombok.Data;
+import lombok.Getter;
+```
+# 写service层的impl实现的时候：
+1. 当预计需要写的代码超过500行，就应该在impl下创建文件夹，然后在文件夹里创建对应的多个文件
