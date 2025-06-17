@@ -43,3 +43,5 @@ import lombok.Getter;
 ```
 # 写service层的impl实现的时候：
 1. 当预计需要写的代码超过500行，就应该在impl下创建文件夹，然后在文件夹里创建对应的多个文件
+
+3. 我的这个配置文件是这个src/main/resources/application.yml文件哈

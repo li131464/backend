@@ -3,9 +3,6 @@ spring:
     name: handsome
   profiles:
     active: dev
-  mvc:
-    servlet:
-      path: /api
 
 server:
   port: 8190
