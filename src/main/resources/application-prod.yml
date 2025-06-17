@@ -11,7 +11,7 @@ logging:
     com.fyp.handsome: info
     root: warn
   pattern:
-    console: "%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{50} - %msg%n"
+    console: "%clr(%d{yyyy-MM-dd HH:mm:ss.SSS}){faint} %clr([%thread]){magenta} %clr(%-5level){highlight} %clr(%logger{50}){cyan} %clr(-){faint} %msg%n"
   file:
     name: logs/handsome.log
     max-size: 10MB
