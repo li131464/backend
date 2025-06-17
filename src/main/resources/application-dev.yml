@@ -29,11 +29,20 @@ logging:
   level:
     com.fyp.handsome: debug
     root: info
+    # 隐藏Spring事务管理相关的调试日志
+    org.springframework.jdbc.datasource.DataSourceTransactionManager: WARN
+    # 隐藏MyBatis会话管理日志
+    org.apache.ibatis.transaction: WARN
+    org.mybatis.spring: WARN
+    # 隐藏Spring事务同步日志
+    org.springframework.transaction: WARN
   pattern:
     console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr([%thread]){magenta} %clr(%-5level){highlight} %clr(%logger{36}){cyan} %clr(-){faint} %msg%n"
 
 # MyBatis Plus 开发环境配置
 mybatis-plus:
   configuration:
+    # 生产环境不打印SQL
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl 
     # 开发环境打印完整SQL
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl 
+    # log-impl: org.apache.ibatis.logging.stdout.StdOutImpl 

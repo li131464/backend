@@ -7,13 +7,25 @@ spring:
 server:
   port: 8190
 
+# 日志配置
+logging:
+  level:
+    # 隐藏Spring事务管理相关的调试日志
+    org.springframework.jdbc.datasource.DataSourceTransactionManager: WARN
+    # 隐藏MyBatis会话管理日志
+    org.apache.ibatis.transaction: WARN
+    org.mybatis.spring: WARN
+    # 如果你想完全隐藏SQL日志，可以设置为WARN
+    # com.fyp.handsome.mapper: WARN
+    # 保持你的业务日志为INFO级别
+    com.fyp.handsome: INFO
+    root: INFO
+
 # MyBatis Plus 配置
 mybatis-plus:
   configuration:
     # 开启驼峰命名转换
     map-underscore-to-camel-case: true
-    # 打印SQL日志
-    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
   global-config:
     db-config:
       # 主键策略 - 自增

@@ -8,16 +8,16 @@
 
 ### ========== 用户认证 ==========
 
-### 1. 用户登录
+### ✅1. 用户登录
 POST {{baseUrl}}/api/user/login
 Content-Type: {{contentType}}
 
 {
     "username": "admin",
-    "password": "admin123"
+    "password": "password123"
 }
 
-### 2. 用户登录（普通用户）
+### ✅2. 用户登录（普通用户）
 POST {{baseUrl}}/api/user/login
 Content-Type: {{contentType}}
 
@@ -26,10 +26,10 @@ Content-Type: {{contentType}}
     "password": "test123"
 }
 
-### 3. 用户登出
+### ✅3. 用户登出
 POST {{baseUrl}}/api/user/logout?userId=1
 
-### 4. 刷新Token
+### ❓4. 刷新Token
 POST {{baseUrl}}/api/user/refresh-token
 Content-Type: {{contentType}}
 
@@ -224,7 +224,7 @@ GET {{baseUrl}}/api/user/count
 
 ### ========== 测试数据创建 ==========
 
-### 37. 创建多个测试用户
+### ✅37. 创建多个测试用户
 POST {{baseUrl}}/api/user/register
 Content-Type: {{contentType}}
 
@@ -238,7 +238,7 @@ Content-Type: {{contentType}}
     "description": "监控系统操作员"
 }
 
-###
+### ✅
 POST {{baseUrl}}/api/user/register
 Content-Type: {{contentType}}
 
@@ -252,7 +252,7 @@ Content-Type: {{contentType}}
     "description": "视频分析专员"
 }
 
-### 38. 创建测试角色
+### 38. ✅创建测试角色
 POST {{baseUrl}}/api/user/role
 Content-Type: {{contentType}}
 
@@ -263,7 +263,7 @@ Content-Type: {{contentType}}
     "status": 1
 }
 
-###
+### ✅
 POST {{baseUrl}}/api/user/role
 Content-Type: {{contentType}}
 
@@ -300,7 +300,7 @@ Content-Type: {{contentType}}
 
 ### ========== 错误测试场景 ==========
 
-### 40. 测试错误的登录信息
+### ✅40. 测试错误的登录信息
 POST {{baseUrl}}/api/user/login
 Content-Type: {{contentType}}
 
@@ -309,10 +309,10 @@ Content-Type: {{contentType}}
     "password": "wrongpassword"
 }
 
-### 41. 测试获取不存在的用户
-GET {{baseUrl}}/api/user/99999
+### ✅41. 测试获取不存在的用户
+GET {{baseUrl}}/api/user/19999
 
-### 42. 测试重复用户名注册
+### ✅42. 测试重复用户名注册
 POST {{baseUrl}}/api/user/register
 Content-Type: {{contentType}}
 
