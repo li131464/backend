@@ -88,20 +88,4 @@ public class Result<T> {
     public static <T> Result<T> error(ResultCode resultCode, T data) {
         return new Result<>(resultCode.getCode(), resultCode.getMessage(), data);
     }
-    
-    // =================== 判断方法 ===================
-    
-    /**
-     * 判断是否成功
-     */
-    public boolean isSuccess() {
-        return ResultCode.SUCCESS.getCode().equals(this.code);
-    }
-    
-    /**
-     * 判断是否失败
-     */
-    public boolean isError() {
-        return !isSuccess();
-    }
 } 
