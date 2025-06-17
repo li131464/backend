@@ -30,7 +30,7 @@ logging:
     com.fyp.handsome: debug
     root: info
   pattern:
-    console: "%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n"
+    console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr([%thread]){magenta} %clr(%-5level){highlight} %clr(%logger{36}){cyan} %clr(-){faint} %msg%n"
 
 # MyBatis Plus 开发环境配置
 mybatis-plus:
