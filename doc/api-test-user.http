@@ -1,0 +1,332 @@
+### 用户权限管理接口测试
+### 作者: fyp
+### 说明: 测试用户权限管理相关的所有API接口
+
+### 设置基础URL
+@baseUrl = http://localhost:8190
+@contentType = application/json
+
+### ========== 用户认证 ==========
+
+### 1. 用户登录
+POST {{baseUrl}}/api/user/login
+Content-Type: {{contentType}}
+
+{
+    "username": "admin",
+    "password": "admin123"
+}
+
+### 2. 用户登录（普通用户）
+POST {{baseUrl}}/api/user/login
+Content-Type: {{contentType}}
+
+{
+    "username": "testuser",
+    "password": "test123"
+}
+
+### 3. 用户登出
+POST {{baseUrl}}/api/user/logout?userId=1
+
+### 4. 刷新Token
+POST {{baseUrl}}/api/user/refresh-token
+Content-Type: {{contentType}}
+
+{
+    "refreshToken": "your_refresh_token_here"
+}
+
+### ========== 用户管理 ==========
+
+### 5. 用户注册
+POST {{baseUrl}}/api/user/register
+Content-Type: {{contentType}}
+
+{
+    "username": "newuser001",
+    "password": "password123",
+    "realName": "张三",
+    "email": "zhangsan@example.com",
+    "phone": "13800138001",
+    "gender": 1,
+    "description": "测试用户账号"
+}
+
+### 6. 根据ID获取用户信息
+GET {{baseUrl}}/api/user/1
+
+### 7. 更新用户信息
+PUT {{baseUrl}}/api/user/1
+Content-Type: {{contentType}}
+
+{
+    "realName": "张三（更新）",
+    "email": "zhangsan_updated@example.com",
+    "phone": "13800138002",
+    "description": "更新后的用户信息"
+}
+
+### 8. 删除用户
+DELETE {{baseUrl}}/api/user/1
+
+### 9. 批量删除用户
+DELETE {{baseUrl}}/api/user/batch
+Content-Type: {{contentType}}
+
+[1, 2, 3]
+
+### 10. 更新用户状态（启用）
+PUT {{baseUrl}}/api/user/1/status?status=1
+
+### 11. 更新用户状态（禁用）
+PUT {{baseUrl}}/api/user/1/status?status=0
+
+### 12. 重置用户密码
+PUT {{baseUrl}}/api/user/1/reset-password
+Content-Type: {{contentType}}
+
+{
+    "newPassword": "newpassword123"
+}
+
+### 13. 修改用户密码
+PUT {{baseUrl}}/api/user/1/change-password
+Content-Type: {{contentType}}
+
+{
+    "oldPassword": "oldpassword123",
+    "newPassword": "newpassword456"
+}
+
+### ========== 用户查询 ==========
+
+### 14. 根据用户名获取用户
+GET {{baseUrl}}/api/user/username/admin
+
+### 15. 根据邮箱获取用户
+GET {{baseUrl}}/api/user/email/admin@example.com
+
+### 16. 分页查询用户信息（基础查询）
+GET {{baseUrl}}/api/user/page?current=1&size=10
+
+### 17. 分页查询用户信息（带筛选条件）
+GET {{baseUrl}}/api/user/page?current=1&size=10&username=test&realName=张&email=@example.com&status=1
+
+### ========== 角色管理 ==========
+
+### 18. 新增角色
+POST {{baseUrl}}/api/user/role
+Content-Type: {{contentType}}
+
+{
+    "roleName": "监控管理员",
+    "roleCode": "MONITOR_ADMIN",
+    "description": "负责监控系统的管理和维护",
+    "status": 1
+}
+
+### 19. 更新角色
+PUT {{baseUrl}}/api/user/role/1
+Content-Type: {{contentType}}
+
+{
+    "roleName": "高级监控管理员",
+    "roleCode": "SENIOR_MONITOR_ADMIN",
+    "description": "负责监控系统的高级管理和维护",
+    "status": 1
+}
+
+### 20. 删除角色
+DELETE {{baseUrl}}/api/user/role/1
+
+### 21. 获取所有角色
+GET {{baseUrl}}/api/user/role/all
+
+### 22. 分页查询角色
+GET {{baseUrl}}/api/user/role/page?current=1&size=10&roleName=管理员&status=1
+
+### ========== 权限管理 ==========
+
+### 23. 新增权限
+POST {{baseUrl}}/api/user/permission
+Content-Type: {{contentType}}
+
+{
+    "permissionName": "视频查看",
+    "permissionCode": "VIDEO_VIEW",
+    "permissionType": 1,
+    "description": "查看监控视频的权限",
+    "status": 1
+}
+
+### 24. 更新权限
+PUT {{baseUrl}}/api/user/permission/1
+Content-Type: {{contentType}}
+
+{
+    "permissionName": "视频查看（更新）",
+    "permissionCode": "VIDEO_VIEW_UPDATED",
+    "permissionType": 1,
+    "description": "查看监控视频的权限（更新版）",
+    "status": 1
+}
+
+### 25. 删除权限
+DELETE {{baseUrl}}/api/user/permission/1
+
+### 26. 获取所有权限
+GET {{baseUrl}}/api/user/permission/all
+
+### 27. 分页查询权限
+GET {{baseUrl}}/api/user/permission/page?current=1&size=10&permissionName=视频&permissionType=1&status=1
+
+### ========== 用户角色关系管理 ==========
+
+### 28. 为用户分配角色
+POST {{baseUrl}}/api/user/1/roles
+Content-Type: {{contentType}}
+
+[1, 2, 3]
+
+### 29. 获取用户的角色
+GET {{baseUrl}}/api/user/1/roles
+
+### ========== 角色权限关系管理 ==========
+
+### 30. 为角色分配权限
+POST {{baseUrl}}/api/user/role/1/permissions
+Content-Type: {{contentType}}
+
+[1, 2, 3, 4, 5]
+
+### 31. 获取角色的权限
+GET {{baseUrl}}/api/user/role/1/permissions
+
+### 32. 获取用户的权限
+GET {{baseUrl}}/api/user/1/permissions
+
+### ========== 权限验证 ==========
+
+### 33. 检查用户是否有指定权限
+GET {{baseUrl}}/api/user/1/has-permission/VIDEO_VIEW
+
+### 34. 检查用户是否有指定角色
+GET {{baseUrl}}/api/user/1/has-role/ADMIN
+
+### ========== 统计信息 ==========
+
+### 35. 获取用户统计概览
+GET {{baseUrl}}/api/user/statistics
+
+### 36. 获取用户总数
+GET {{baseUrl}}/api/user/count
+
+### ========== 测试数据创建 ==========
+
+### 37. 创建多个测试用户
+POST {{baseUrl}}/api/user/register
+Content-Type: {{contentType}}
+
+{
+    "username": "monitor001",
+    "password": "monitor123",
+    "realName": "监控员001",
+    "email": "monitor001@example.com",
+    "phone": "13900139001",
+    "gender": 1,
+    "description": "监控系统操作员"
+}
+
+###
+POST {{baseUrl}}/api/user/register
+Content-Type: {{contentType}}
+
+{
+    "username": "analyst001",
+    "password": "analyst123",
+    "realName": "分析员001",
+    "email": "analyst001@example.com",
+    "phone": "13900139002",
+    "gender": 2,
+    "description": "视频分析专员"
+}
+
+### 38. 创建测试角色
+POST {{baseUrl}}/api/user/role
+Content-Type: {{contentType}}
+
+{
+    "roleName": "视频分析师",
+    "roleCode": "VIDEO_ANALYST",
+    "description": "负责视频内容分析和数据统计",
+    "status": 1
+}
+
+###
+POST {{baseUrl}}/api/user/role
+Content-Type: {{contentType}}
+
+{
+    "roleName": "系统观察员",
+    "roleCode": "SYSTEM_OBSERVER",
+    "description": "只能查看系统信息，无操作权限",
+    "status": 1
+}
+
+### 39. 创建测试权限
+POST {{baseUrl}}/api/user/permission
+Content-Type: {{contentType}}
+
+{
+    "permissionName": "视频分析",
+    "permissionCode": "VIDEO_ANALYSIS",
+    "permissionType": 2,
+    "description": "执行视频分析操作的权限",
+    "status": 1
+}
+
+###
+POST {{baseUrl}}/api/user/permission
+Content-Type: {{contentType}}
+
+{
+    "permissionName": "数据导出",
+    "permissionCode": "DATA_EXPORT",
+    "permissionType": 2,
+    "description": "导出系统数据的权限",
+    "status": 1
+}
+
+### ========== 错误测试场景 ==========
+
+### 40. 测试错误的登录信息
+POST {{baseUrl}}/api/user/login
+Content-Type: {{contentType}}
+
+{
+    "username": "wronguser",
+    "password": "wrongpassword"
+}
+
+### 41. 测试获取不存在的用户
+GET {{baseUrl}}/api/user/99999
+
+### 42. 测试重复用户名注册
+POST {{baseUrl}}/api/user/register
+Content-Type: {{contentType}}
+
+{
+    "username": "admin",
+    "password": "password123",
+    "realName": "重复用户",
+    "email": "duplicate@example.com"
+}
+
+### ========== 权限测试场景 ==========
+
+### 43. 测试不存在的权限检查
+GET {{baseUrl}}/api/user/1/has-permission/NON_EXISTENT_PERMISSION
+
+### 44. 测试不存在的角色检查
+GET {{baseUrl}}/api/user/1/has-role/NON_EXISTENT_ROLE 

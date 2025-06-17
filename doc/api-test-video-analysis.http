@@ -1,0 +1,153 @@
+### 视频分析接口测试
+### 作者: fyp
+### 说明: 测试视频分析相关的所有API接口
+
+### 设置基础URL
+@baseUrl = http://localhost:8190
+@contentType = application/json
+
+### ========== 视频分析操作 ==========
+
+### 1. 执行视频内容分析（人脸识别）
+POST {{baseUrl}}/api/video-analysis/analyze/1?analysisType=face_recognition
+
+### 2. 执行视频内容分析（车牌识别）
+POST {{baseUrl}}/api/video-analysis/analyze/1?analysisType=license_plate_recognition
+
+### 3. 执行视频内容分析（物体识别）
+POST {{baseUrl}}/api/video-analysis/analyze/1?analysisType=object_detection
+
+### 4. 执行行为分析
+POST {{baseUrl}}/api/video-analysis/behavior/1
+
+### 5. 执行事件检测
+POST {{baseUrl}}/api/video-analysis/event/1
+
+### 6. 批量分析视频
+POST {{baseUrl}}/api/video-analysis/batch-analyze
+Content-Type: {{contentType}}
+
+{
+    "videoIds": [1, 2, 3],
+    "analysisType": "face_recognition"
+}
+
+### ========== 查询分析结果 ==========
+
+### 7. 获取指定视频的分析结果
+GET {{baseUrl}}/api/video-analysis/video/1
+
+### 8. 根据分析类型获取分析结果
+GET {{baseUrl}}/api/video-analysis/type/face_recognition
+
+### 9. 根据视频ID和分析类型获取分析结果
+GET {{baseUrl}}/api/video-analysis/video/1/type/face_recognition
+
+### 10. 根据时间范围获取分析结果
+GET {{baseUrl}}/api/video-analysis/time-range?startTime=2024-01-01 00:00:00&endTime=2024-01-31 23:59:59
+
+### 11. 分页查询分析结果（基础查询）
+GET {{baseUrl}}/api/video-analysis/page?current=1&size=10
+
+### 12. 分页查询分析结果（带筛选条件）
+GET {{baseUrl}}/api/video-analysis/page?current=1&size=10&videoId=1&analysisType=face_recognition&startTime=2024-01-01 00:00:00&endTime=2024-12-31 23:59:59
+
+### 13. 获取最新分析结果
+GET {{baseUrl}}/api/video-analysis/latest?limit=5
+
+### ========== 数据分析和统计 ==========
+
+### 14. 根据分析类型统计数量
+GET {{baseUrl}}/api/video-analysis/statistics/type
+
+### 15. 根据时间范围统计分析数量
+GET {{baseUrl}}/api/video-analysis/statistics/time-range?startTime=2024-01-01 00:00:00&endTime=2024-01-31 23:59:59
+
+### 16. 获取分析统计概览
+GET {{baseUrl}}/api/video-analysis/statistics
+
+### 17. 获取人员流量统计
+GET {{baseUrl}}/api/video-analysis/statistics/person-flow?startTime=2024-01-01 00:00:00&endTime=2024-01-31 23:59:59
+
+### 18. 获取车辆流量统计
+GET {{baseUrl}}/api/video-analysis/statistics/vehicle-flow?startTime=2024-01-01 00:00:00&endTime=2024-01-31 23:59:59
+
+### 19. 获取异常事件统计
+GET {{baseUrl}}/api/video-analysis/statistics/abnormal-events?startTime=2024-01-01 00:00:00&endTime=2024-01-31 23:59:59
+
+### 20. 生成分析报表
+POST {{baseUrl}}/api/video-analysis/report
+Content-Type: {{contentType}}
+
+{
+    "reportType": "daily",
+    "startTime": "2024-01-01T00:00:00",
+    "endTime": "2024-01-31T23:59:59"
+}
+
+### ========== 分析结果管理 ==========
+
+### 21. 删除分析结果
+DELETE {{baseUrl}}/api/video-analysis/1
+
+### 22. 批量删除分析结果
+DELETE {{baseUrl}}/api/video-analysis/batch
+Content-Type: {{contentType}}
+
+[1, 2, 3]
+
+### 23. 删除指定视频的所有分析结果
+DELETE {{baseUrl}}/api/video-analysis/video/1
+
+### ========== 算法配置 ==========
+
+### 24. 获取支持的分析类型
+GET {{baseUrl}}/api/video-analysis/supported-types
+
+### 25. 检查分析算法是否可用（人脸识别）
+GET {{baseUrl}}/api/video-analysis/algorithm/face_recognition/available
+
+### 26. 检查分析算法是否可用（车牌识别）
+GET {{baseUrl}}/api/video-analysis/algorithm/license_plate_recognition/available
+
+### 27. 检查分析算法是否可用（物体检测）
+GET {{baseUrl}}/api/video-analysis/algorithm/object_detection/available
+
+### ========== 不同分析类型测试 ==========
+
+### 28. 人员行为分析测试
+POST {{baseUrl}}/api/video-analysis/analyze/2?analysisType=behavior_analysis
+
+### 29. 异常事件检测测试
+POST {{baseUrl}}/api/video-analysis/analyze/3?analysisType=anomaly_detection
+
+### 30. 人群密度分析测试
+POST {{baseUrl}}/api/video-analysis/analyze/1?analysisType=crowd_density
+
+### 31. 交通流量分析测试
+POST {{baseUrl}}/api/video-analysis/analyze/2?analysisType=traffic_flow
+
+### ========== 错误测试场景 ==========
+
+### 32. 测试分析不存在的视频
+POST {{baseUrl}}/api/video-analysis/analyze/99999?analysisType=face_recognition
+
+### 33. 测试不支持的分析类型
+POST {{baseUrl}}/api/video-analysis/analyze/1?analysisType=unsupported_type
+
+### 34. 测试获取不存在的分析结果
+GET {{baseUrl}}/api/video-analysis/video/99999
+
+### ========== 性能测试场景 ==========
+
+### 35. 测试大批量分析
+POST {{baseUrl}}/api/video-analysis/batch-analyze
+Content-Type: {{contentType}}
+
+{
+    "videoIds": [1, 2, 3, 4, 5, 6, 7, 8, 9, 10],
+    "analysisType": "face_recognition"
+}
+
+### 36. 测试大分页查询
+GET {{baseUrl}}/api/video-analysis/page?current=1&size=50 

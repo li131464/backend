@@ -2,8 +2,9 @@ package com.fyp.handsome.mapper;
 
 import java.util.List;
 
-import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.Update;
 
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
@@ -14,7 +15,6 @@ import com.fyp.handsome.entity.User;
  * 用户信息Mapper接口
  * @author fyp
  */
-@Mapper
 public interface UserMapper extends BaseMapper<User> {
 
     /**
@@ -22,6 +22,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @param username 用户名
      * @return 用户信息
      */
+    @Select("SELECT * FROM user_info WHERE username = #{username} AND status = 1")
     User selectByUsername(@Param("username") String username);
 
     /**
@@ -29,6 +30,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @param email 邮箱
      * @return 用户信息
      */
+    @Select("SELECT * FROM user_info WHERE email = #{email} AND status = 1")
     User selectByEmail(@Param("email") String email);
 
     /**
@@ -36,6 +38,7 @@ public interface UserMapper extends BaseMapper<User> {
      * @param phone 手机号
      * @return 用户信息
      */
+    @Select("SELECT * FROM user_info WHERE phone = #{phone} AND status = 1")
     User selectByPhone(@Param("phone") String phone);
 
     /**
@@ -57,10 +60,11 @@ public interface UserMapper extends BaseMapper<User> {
      * @param status 状态
      * @return 用户列表
      */
+    @Select("SELECT * FROM user_info WHERE status = #{status} ORDER BY create_time DESC")
     List<User> selectByStatus(@Param("status") Integer status);
 
     /**
-     * 分页查询用户信息（带条件）
+     * 分页查询用户信息（带条件）- 复杂动态SQL，使用XML实现
      * @param page 分页参数
      * @param username 用户名（可选）
      * @param realName 真实姓名（可选）
@@ -75,14 +79,14 @@ public interface UserMapper extends BaseMapper<User> {
                                          @Param("status") Integer status);
 
     /**
-     * 查询用户及其角色信息
+     * 查询用户及其角色信息 - 复杂多表关联，使用XML实现
      * @param userId 用户ID
      * @return 用户及角色信息
      */
     User selectUserWithRoles(@Param("userId") Long userId);
 
     /**
-     * 查询用户及其权限信息
+     * 查询用户及其权限信息 - 复杂多表关联，使用XML实现
      * @param userId 用户ID
      * @return 用户及权限信息
      */
@@ -93,17 +97,20 @@ public interface UserMapper extends BaseMapper<User> {
      * @param userId 用户ID
      * @return 影响行数
      */
+    @Update("UPDATE user_info SET last_login_time = NOW() WHERE id = #{userId}")
     int updateLastLoginTime(@Param("userId") Long userId);
 
     /**
      * 统计用户总数
      * @return 用户总数
      */
+    @Select("SELECT COUNT(*) FROM user_info WHERE status = 1")
     Long countTotal();
 
     /**
      * 统计各状态用户数量
      * @return 统计结果列表
      */
+    @Select("SELECT status, COUNT(*) as count FROM user_info GROUP BY status")
     List<Object> countByStatus();
 } 

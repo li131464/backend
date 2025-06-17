@@ -1,6 +1,5 @@
 package com.fyp.handsome.dto;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
 /**
@@ -8,7 +7,6 @@ import lombok.Getter;
  * @author fyp
  */
 @Getter
-@AllArgsConstructor
 public enum ResultCode {
     
     // =================== 成功状态码 ===================
@@ -22,6 +20,7 @@ public enum ResultCode {
     METHOD_NOT_ALLOWED(405, "请求方法不支持"),
     CONFLICT(409, "数据冲突"),
     VALIDATION_ERROR(422, "参数校验失败"),
+    INVALID_PARAM(400, "参数无效"),
     
     // =================== 服务端错误状态码 5xx ===================
     INTERNAL_SERVER_ERROR(500, "服务器内部错误"),
@@ -41,6 +40,9 @@ public enum ResultCode {
     VIDEO_UPLOAD_ERROR(1103, "视频上传失败"),
     VIDEO_FORMAT_ERROR(1104, "视频格式不支持"),
     VIDEO_SIZE_EXCEEDED(1105, "视频文件过大"),
+    VIDEO_ADD_FAILED(1106, "视频添加失败"),
+    VIDEO_UPDATE_FAILED(1107, "视频更新失败"),
+    VIDEO_DELETE_FAILED(1108, "视频删除失败"),
     
     // 分析相关错误 12xx
     ANALYSIS_NOT_FOUND(1201, "分析结果不存在"),
@@ -74,4 +76,12 @@ public enum ResultCode {
      * 状态消息
      */
     private final String message;
+    
+    /**
+     * 构造函数
+     */
+    ResultCode(Integer code, String message) {
+        this.code = code;
+        this.message = message;
+    }
 } 
