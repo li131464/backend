@@ -5,7 +5,7 @@
 	<parent>
 		<groupId>org.springframework.boot</groupId>
 		<artifactId>spring-boot-starter-parent</artifactId>
-		<version>3.4.5</version>
+		<version>3.4.6</version>
 		<relativePath/> <!-- lookup parent from repository -->
 	</parent>
 	<groupId>com.fyp</groupId>
@@ -28,7 +28,7 @@
 	</scm>
 	<properties>
 		<java.version>21</java.version>
-		<mybatis-plus.version>3.5.5</mybatis-plus.version>
+		<mybatis-plus.version>3.5.12</mybatis-plus.version>
 	</properties>
 	<dependencies>
 
@@ -49,10 +49,10 @@
 			<artifactId>spring-boot-starter</artifactId>
 		</dependency>
 
-		<!-- MyBatis Plus -->
+		<!-- MyBatis Plus for Spring Boot 3 -->
 		<dependency>
 			<groupId>com.baomidou</groupId>
-			<artifactId>mybatis-plus-boot-starter</artifactId>
+			<artifactId>mybatis-plus-spring-boot3-starter</artifactId>
 			<version>${mybatis-plus.version}</version>
 		</dependency>
 
@@ -88,6 +88,25 @@
 
 	<build>
 		<plugins>
+			<!-- Maven Compiler Plugin with Lombok support -->
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-compiler-plugin</artifactId>
+				<version>3.13.0</version>
+				<configuration>
+					<source>21</source>
+					<target>21</target>
+					<annotationProcessorPaths>
+						<path>
+							<groupId>org.projectlombok</groupId>
+							<artifactId>lombok</artifactId>
+							<version>${lombok.version}</version>
+						</path>
+					</annotationProcessorPaths>
+				</configuration>
+			</plugin>
+			
+			<!-- Spring Boot Maven Plugin -->
 			<plugin>
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>

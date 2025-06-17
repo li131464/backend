@@ -9,6 +9,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.metadata.IPage;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
@@ -46,7 +47,9 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             log.info("用户尝试登录，username：{}", username);
             
             // 查询用户信息
-            User user = userMapper.selectByUsername(username);
+            User user = getOne(new LambdaQueryWrapper<User>()
+                    .eq(User::getUsername, username)
+                    .eq(User::getStatus, 1)); // 只查询启用状态的用户
             if (user == null) {
                 log.warn("登录失败，用户不存在：{}", username);
                 return createLoginFailResult("用户不存在");
@@ -141,13 +144,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             log.info("用户注册，username：{}", user.getUsername());
             
             // 检查用户名是否已存在
-            if (userMapper.selectByUsername(user.getUsername()) != null) {
+            if (getOne(new LambdaQueryWrapper<User>()
+                    .eq(User::getUsername, user.getUsername())
+                    .last("LIMIT 1")) != null) {
                 log.warn("注册失败，用户名已存在：{}", user.getUsername());
                 return false;
             }
             
             // 检查邮箱是否已存在
-            if (StringUtils.hasText(user.getEmail()) && userMapper.selectByEmail(user.getEmail()) != null) {
+            if (StringUtils.hasText(user.getEmail()) && 
+                getOne(new LambdaQueryWrapper<User>()
+                        .eq(User::getEmail, user.getEmail())
+                        .last("LIMIT 1")) != null) {
                 log.warn("注册失败，邮箱已存在：{}", user.getEmail());
                 return false;
             }
@@ -266,7 +274,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public User getUserByUsername(String username) {
         try {
-            return userMapper.selectByUsername(username);
+            return getOne(new LambdaQueryWrapper<User>().eq(User::getUsername, username));
         } catch (Exception e) {
             log.error("根据用户名查询用户失败，username：{}，错误：{}", username, e.getMessage(), e);
             return null;
@@ -276,7 +284,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public User getUserByEmail(String email) {
         try {
-            return userMapper.selectByEmail(email);
+            return getOne(new LambdaQueryWrapper<User>().eq(User::getEmail, email));
         } catch (Exception e) {
             log.error("根据邮箱查询用户失败，email：{}，错误：{}", email, e.getMessage(), e);
             return null;
@@ -286,7 +294,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public User getUserByPhone(String phone) {
         try {
-            return userMapper.selectByPhone(phone);
+            return getOne(new LambdaQueryWrapper<User>().eq(User::getPhone, phone));
         } catch (Exception e) {
             log.error("根据手机号查询用户失败，phone：{}，错误：{}", phone, e.getMessage(), e);
             return null;
@@ -296,7 +304,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public IPage<User> getUsersPage(Page<User> page, String username, String realName, String email, Integer status) {
         try {
-            return userMapper.selectPageWithConditions(page, username, realName, email, status);
+            LambdaQueryWrapper<User> wrapper = new LambdaQueryWrapper<>();
+            
+            if (StringUtils.hasText(username)) {
+                wrapper.like(User::getUsername, username);
+            }
+            if (StringUtils.hasText(realName)) {
+                wrapper.like(User::getRealName, realName);
+            }
+            if (StringUtils.hasText(email)) {
+                wrapper.like(User::getEmail, email);
+            }
+            if (status != null) {
+                wrapper.eq(User::getStatus, status);
+            }
+            
+            return page(page, wrapper);
         } catch (Exception e) {
             log.error("分页查询用户失败，错误：{}", e.getMessage(), e);
             return new Page<>();
@@ -352,7 +375,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public List<Role> getAllRoles() {
         try {
-            return roleMapper.selectEnabledRoles();
+            return roleMapper.selectList(new LambdaQueryWrapper<Role>().eq(Role::getStatus, 1));
         } catch (Exception e) {
             log.error("查询所有角色失败，错误：{}", e.getMessage(), e);
             return List.of();
@@ -362,7 +385,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public IPage<Role> getRolesPage(Page<Role> page, String roleName, String roleCode, Integer status) {
         try {
-            return roleMapper.selectPageWithConditions(page, roleName, roleCode, status);
+            LambdaQueryWrapper<Role> wrapper = new LambdaQueryWrapper<>();
+            
+            if (StringUtils.hasText(roleName)) {
+                wrapper.like(Role::getRoleName, roleName);
+            }
+            if (StringUtils.hasText(roleCode)) {
+                wrapper.like(Role::getRoleCode, roleCode);
+            }
+            if (status != null) {
+                wrapper.eq(Role::getStatus, status);
+            }
+            
+            return roleMapper.selectPage(page, wrapper);
         } catch (Exception e) {
             log.error("分页查询角色失败，错误：{}", e.getMessage(), e);
             return new Page<>();
@@ -407,7 +442,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public List<Permission> getAllPermissions() {
         try {
-            return permissionMapper.selectEnabledPermissions();
+            return permissionMapper.selectList(new LambdaQueryWrapper<Permission>().eq(Permission::getStatus, 1));
         } catch (Exception e) {
             log.error("查询所有权限失败，错误：{}", e.getMessage(), e);
             return List.of();
@@ -418,7 +453,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public IPage<Permission> getPermissionsPage(Page<Permission> page, String permissionName, String permissionCode, 
                                                 Integer permissionType, Integer status) {
         try {
-            return permissionMapper.selectPageWithConditions(page, permissionName, permissionCode, permissionType, status);
+            LambdaQueryWrapper<Permission> wrapper = new LambdaQueryWrapper<>();
+            
+            if (StringUtils.hasText(permissionName)) {
+                wrapper.like(Permission::getPermissionName, permissionName);
+            }
+            if (StringUtils.hasText(permissionCode)) {
+                wrapper.like(Permission::getPermissionCode, permissionCode);
+            }
+            if (permissionType != null) {
+                wrapper.eq(Permission::getPermissionType, permissionType);
+            }
+            if (status != null) {
+                wrapper.eq(Permission::getStatus, status);
+            }
+            
+            return permissionMapper.selectPage(page, wrapper);
         } catch (Exception e) {
             log.error("分页查询权限失败，错误：{}", e.getMessage(), e);
             return new Page<>();
@@ -542,7 +592,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public Long getUserTotalCount() {
         try {
-            return userMapper.countTotal();
+            return count();
         } catch (Exception e) {
             log.error("统计用户总数失败，错误：{}", e.getMessage(), e);
             return 0L;
