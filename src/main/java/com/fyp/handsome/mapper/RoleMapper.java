@@ -2,6 +2,8 @@ package com.fyp.handsome.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 
@@ -97,4 +99,30 @@ public interface RoleMapper extends BaseMapper<Role> {
      */
     @Select("SELECT status, COUNT(*) as count FROM role_info GROUP BY status")
     List<Object> countByStatus();
+
+    /**
+     * 删除角色的所有权限关联
+     * @param roleId 角色ID
+     * @return 影响行数
+     */
+    @Delete("DELETE FROM role_permission WHERE role_id = #{roleId}")
+    int deleteRolePermissions(@Param("roleId") Long roleId);
+
+    /**
+     * 插入角色权限关联
+     * @param roleId 角色ID
+     * @param permissionId 权限ID
+     * @return 影响行数
+     */
+    @Insert("INSERT INTO role_permission (role_id, permission_id, create_time) VALUES (#{roleId}, #{permissionId}, NOW())")
+    int insertRolePermission(@Param("roleId") Long roleId, @Param("permissionId") Long permissionId);
+
+    /**
+     * 删除角色指定的权限关联
+     * @param roleId 角色ID
+     * @param permissionId 权限ID
+     * @return 影响行数
+     */
+    @Delete("DELETE FROM role_permission WHERE role_id = #{roleId} AND permission_id = #{permissionId}")
+    int deleteRolePermissionByPermissionId(@Param("roleId") Long roleId, @Param("permissionId") Long permissionId);
 } 

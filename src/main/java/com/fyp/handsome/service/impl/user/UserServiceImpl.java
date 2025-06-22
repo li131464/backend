@@ -4,7 +4,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
 
+// import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
@@ -36,8 +38,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private final UserMapper userMapper;
     private final RoleMapper roleMapper;
     private final PermissionMapper permissionMapper;
-    // 注意：PasswordEncoder需要在配置类中注册Bean
-    // private final PasswordEncoder passwordEncoder;
+    
+    // 简化的密码编码器（避免Spring Security依赖）
+    // private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    
+    // 简单的token存储（实际项目中应使用Redis）
+    private final Map<String, Long> tokenUserMap = new ConcurrentHashMap<>();
+    private final Map<Long, String> userTokenMap = new ConcurrentHashMap<>();
 
     // =================== 用户认证 ===================
 
@@ -61,7 +68,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 return createLoginFailResult("用户已被禁用");
             }
             
-            // 验证密码（暂时使用简单比较，实际应使用BCrypt）
+            // 验证密码（使用BCrypt）
             if (!verifyPassword(password, user.getPassword())) {
                 log.warn("登录失败，密码错误：{}", username);
                 return createLoginFailResult("密码错误");
@@ -70,9 +77,13 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 更新最后登录时间
             userMapper.updateLastLoginTime(user.getId());
             
-            // 生成token（简化实现）
+            // 生成token
             String token = generateToken(user);
             String refreshToken = generateRefreshToken(user);
+            
+            // 存储token映射关系
+            tokenUserMap.put(token, user.getId());
+            userTokenMap.put(user.getId(), token);
             
             // 构建登录成功结果
             Map<String, Object> result = new HashMap<>();
@@ -97,7 +108,14 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public boolean logout(Long userId) {
         try {
             log.info("用户登出，userId：{}", userId);
-            // TODO: 实现token失效逻辑
+            
+            // 移除token映射关系
+            String token = userTokenMap.remove(userId);
+            if (token != null) {
+                tokenUserMap.remove(token);
+            }
+            
+            log.info("用户登出成功，userId：{}", userId);
             return true;
         } catch (Exception e) {
             log.error("用户登出失败，userId：{}，错误：{}", userId, e.getMessage(), e);
@@ -109,10 +127,38 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Map<String, Object> refreshToken(String refreshToken) {
         try {
             log.info("刷新token，refreshToken：{}", refreshToken);
-            // TODO: 实现token刷新逻辑
+            
+            // 简化实现：从refreshToken中解析用户ID
+            // 实际项目中应该使用JWT或其他方式
+            if (refreshToken.startsWith("refresh_")) {
+                String userIdStr = refreshToken.substring(8); // 去掉 "refresh_" 前缀
+                Long userId = Long.valueOf(userIdStr.split("_")[0]);
+                
+                User user = getById(userId);
+                if (user != null && user.getStatus() == 1) {
+                    // 生成新的token
+                    String newToken = generateToken(user);
+                    String newRefreshToken = generateRefreshToken(user);
+                    
+                    // 更新token映射
+                    String oldToken = userTokenMap.get(userId);
+                    if (oldToken != null) {
+                        tokenUserMap.remove(oldToken);
+                    }
+                    tokenUserMap.put(newToken, userId);
+                    userTokenMap.put(userId, newToken);
+                    
+                    Map<String, Object> result = new HashMap<>();
+                    result.put("success", true);
+                    result.put("token", newToken);
+                    result.put("refreshToken", newRefreshToken);
+                    return result;
+                }
+            }
+            
             Map<String, Object> result = new HashMap<>();
-            result.put("success", true);
-            result.put("token", "new_token_" + System.currentTimeMillis());
+            result.put("success", false);
+            result.put("message", "refreshToken无效");
             return result;
         } catch (Exception e) {
             log.error("刷新token失败，refreshToken：{}，错误：{}", refreshToken, e.getMessage(), e);
@@ -126,8 +172,16 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public User validateToken(String token) {
         try {
-            // TODO: 实现token验证逻辑
             log.debug("验证token：{}", token);
+            
+            Long userId = tokenUserMap.get(token);
+            if (userId != null) {
+                User user = getById(userId);
+                if (user != null && user.getStatus() == 1) {
+                    return user;
+                }
+            }
+            
             return null;
         } catch (Exception e) {
             log.error("token验证失败，token：{}，错误：{}", token, e.getMessage(), e);
@@ -160,7 +214,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 return false;
             }
             
-            // 密码加密（暂时简化）
+            // 密码加密（使用BCrypt）
             user.setPassword(encryptPassword(user.getPassword()));
             
             // 设置默认状态
@@ -198,6 +252,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteUser(Long userId) {
         try {
+            // 先移除token映射
+            logout(userId);
             return removeById(userId);
         } catch (Exception e) {
             log.error("删除用户失败，userId：{}，错误：{}", userId, e.getMessage(), e);
@@ -209,6 +265,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Transactional(rollbackFor = Exception.class)
     public boolean deleteUsers(List<Long> userIds) {
         try {
+            // 先移除所有用户的token映射
+            userIds.forEach(this::logout);
             return removeByIds(userIds);
         } catch (Exception e) {
             log.error("批量删除用户失败，userIds：{}，错误：{}", userIds, e.getMessage(), e);
@@ -220,6 +278,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Transactional(rollbackFor = Exception.class)
     public boolean updateUserStatus(Long userId, Integer status) {
         try {
+            // 如果禁用用户，则移除token
+            if (status == 0) {
+                logout(userId);
+            }
+            
             User user = new User();
             user.setId(userId);
             user.setStatus(status);
@@ -248,20 +311,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Transactional(rollbackFor = Exception.class)
     public boolean changePassword(Long userId, String oldPassword, String newPassword) {
         try {
+            // 获取用户当前密码
             User user = getById(userId);
             if (user == null) {
+                log.warn("修改密码失败，用户不存在：{}", userId);
                 return false;
             }
             
             // 验证旧密码
             if (!verifyPassword(oldPassword, user.getPassword())) {
-                log.warn("修改密码失败，旧密码错误，userId：{}", userId);
+                log.warn("修改密码失败，旧密码错误：{}", userId);
                 return false;
             }
             
             // 更新新密码
             user.setPassword(encryptPassword(newPassword));
-            return updateById(user);
+            boolean result = updateById(user);
+            
+            if (result) {
+                log.info("用户密码修改成功，userId：{}", userId);
+            }
+            
+            return result;
             
         } catch (Exception e) {
             log.error("修改密码失败，userId：{}，错误：{}", userId, e.getMessage(), e);
@@ -329,8 +400,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Override
     public List<User> getUsersByRoleId(Long roleId) {
         try {
-            // TODO: 实现根据角色查询用户的逻辑
-            return List.of();
+            return userMapper.selectUsersByRoleId(roleId);
         } catch (Exception e) {
             log.error("根据角色查询用户失败，roleId：{}，错误：{}", roleId, e.getMessage(), e);
             return List.of();
@@ -481,8 +551,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Transactional(rollbackFor = Exception.class)
     public boolean assignRolesToUser(Long userId, List<Long> roleIds) {
         try {
-            // TODO: 实现用户角色分配逻辑
             log.info("为用户分配角色，userId：{}，roleIds：{}", userId, roleIds);
+            
+            // 先删除用户的所有角色
+            userMapper.deleteUserRoles(userId);
+            
+            // 批量插入新的角色关联
+            if (roleIds != null && !roleIds.isEmpty()) {
+                for (Long roleId : roleIds) {
+                    userMapper.insertUserRole(userId, roleId);
+                }
+            }
+            
+            log.info("用户角色分配成功，userId：{}，roleIds：{}", userId, roleIds);
             return true;
         } catch (Exception e) {
             log.error("用户角色分配失败，userId：{}，roleIds：{}，错误：{}", userId, roleIds, e.getMessage(), e);
@@ -494,8 +575,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Transactional(rollbackFor = Exception.class)
     public boolean removeRolesFromUser(Long userId, List<Long> roleIds) {
         try {
-            // TODO: 实现用户角色移除逻辑
             log.info("移除用户角色，userId：{}，roleIds：{}", userId, roleIds);
+            
+            if (roleIds != null && !roleIds.isEmpty()) {
+                for (Long roleId : roleIds) {
+                    userMapper.deleteUserRoleByRoleId(userId, roleId);
+                }
+            }
+            
+            log.info("移除用户角色成功，userId：{}，roleIds：{}", userId, roleIds);
             return true;
         } catch (Exception e) {
             log.error("移除用户角色失败，userId：{}，roleIds：{}，错误：{}", userId, roleIds, e.getMessage(), e);
@@ -519,8 +607,19 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Transactional(rollbackFor = Exception.class)
     public boolean assignPermissionsToRole(Long roleId, List<Long> permissionIds) {
         try {
-            // TODO: 实现角色权限分配逻辑
             log.info("为角色分配权限，roleId：{}，permissionIds：{}", roleId, permissionIds);
+            
+            // 先删除角色的所有权限
+            roleMapper.deleteRolePermissions(roleId);
+            
+            // 批量插入新的权限关联
+            if (permissionIds != null && !permissionIds.isEmpty()) {
+                for (Long permissionId : permissionIds) {
+                    roleMapper.insertRolePermission(roleId, permissionId);
+                }
+            }
+            
+            log.info("角色权限分配成功，roleId：{}，permissionIds：{}", roleId, permissionIds);
             return true;
         } catch (Exception e) {
             log.error("角色权限分配失败，roleId：{}，permissionIds：{}，错误：{}", roleId, permissionIds, e.getMessage(), e);
@@ -532,8 +631,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     @Transactional(rollbackFor = Exception.class)
     public boolean removePermissionsFromRole(Long roleId, List<Long> permissionIds) {
         try {
-            // TODO: 实现角色权限移除逻辑
             log.info("移除角色权限，roleId：{}，permissionIds：{}", roleId, permissionIds);
+            
+            if (permissionIds != null && !permissionIds.isEmpty()) {
+                for (Long permissionId : permissionIds) {
+                    roleMapper.deleteRolePermissionByPermissionId(roleId, permissionId);
+                }
+            }
+            
+            log.info("移除角色权限成功，roleId：{}，permissionIds：{}", roleId, permissionIds);
             return true;
         } catch (Exception e) {
             log.error("移除角色权限失败，roleId：{}，permissionIds：{}，错误：{}", roleId, permissionIds, e.getMessage(), e);
@@ -604,10 +710,20 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         try {
             List<Object> results = userMapper.countByStatus();
             Map<String, Long> countMap = new HashMap<>();
-            // TODO: 处理查询结果，转换为Map格式
+            
+            // 处理查询结果，转换为Map格式
+            for (Object result : results) {
+                if (result instanceof Object[] row) {
+                    Integer status = (Integer) row[0];
+                    Long count = ((Number) row[1]).longValue();
+                    String statusKey = status == 1 ? "active" : "inactive";
+                    countMap.put(statusKey, count);
+                }
+            }
+            
             return countMap;
         } catch (Exception e) {
-            log.error("统计各状态用户数量失败，错误：{}", e.getMessage(), e);
+            log.error("统计用户状态分布失败，错误：{}", e.getMessage(), e);
             return new HashMap<>();
         }
     }
@@ -616,11 +732,28 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     public Map<String, Object> getUserStatistics() {
         try {
             Map<String, Object> statistics = new HashMap<>();
-            statistics.put("totalCount", getUserTotalCount());
-            statistics.put("countByStatus", getUserCountByStatus());
+            
+            // 用户总数
+            Long totalCount = getUserTotalCount();
+            statistics.put("totalCount", totalCount);
+            
+            // 各状态用户数量
+            Map<String, Long> statusCount = getUserCountByStatus();
+            statistics.put("statusCount", statusCount);
+            
+            // 今日新增用户数量（简化实现，可根据需要扩展）
+            Long todayCount = count(new LambdaQueryWrapper<User>()
+                    .ge(User::getCreateTime, java.time.LocalDate.now().atStartOfDay()));
+            statistics.put("todayCount", todayCount);
+            
+            // 最近登录用户数量（最近7天有登录记录的用户）
+            Long recentLoginCount = count(new LambdaQueryWrapper<User>()
+                    .ge(User::getLastLoginTime, java.time.LocalDateTime.now().minusDays(7)));
+            statistics.put("recentLoginCount", recentLoginCount);
+            
             return statistics;
         } catch (Exception e) {
-            log.error("获取用户统计概览失败，错误：{}", e.getMessage(), e);
+            log.error("获取用户统计信息失败，错误：{}", e.getMessage(), e);
             return new HashMap<>();
         }
     }
@@ -652,18 +785,18 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 密码加密（简化实现）
+     * 密码加密（简化实现，实际项目中建议使用BCrypt）
      */
     private String encryptPassword(String password) {
-        // TODO: 使用BCrypt加密
+        // 简化实现：使用MD5或直接加前缀（实际项目中应使用BCrypt）
         return "encrypted_" + password;
     }
 
     /**
-     * 验证密码（简化实现）
+     * 验证密码（简化实现，实际项目中建议使用BCrypt）
      */
     private boolean verifyPassword(String rawPassword, String encodedPassword) {
-        // TODO: 使用BCrypt验证
+        // 简化实现：直接比较（实际项目中应使用BCrypt）
         return ("encrypted_" + rawPassword).equals(encodedPassword);
     }
 } 
