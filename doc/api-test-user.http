@@ -1,23 +1,14 @@
-### 用户权限管理接口测试
+### 用户管理接口测试
 ### 作者: fyp
-### 说明: 测试用户权限管理相关的所有API接口
+### 说明: 测试用户管理相关的所有API接口（按照文档要求）
 
 ### 设置基础URL
 @baseUrl = http://localhost:8190
 @contentType = application/json
 
-### ========== 用户认证 ==========
+### ========== 用户认证接口 ==========
 
 ### ✅1. 用户登录
-POST {{baseUrl}}/api/user/login
-Content-Type: {{contentType}}
-
-{
-    "username": "admin",
-    "password": "password123"
-}
-
-### ✅2. 用户登录（普通用户）
 POST {{baseUrl}}/api/user/login
 Content-Type: {{contentType}}
 
@@ -26,307 +17,245 @@ Content-Type: {{contentType}}
     "password": "test123"
 }
 
-### ✅3. 用户登出
+### ✅2. 用户登出
 POST {{baseUrl}}/api/user/logout?userId=1
 
-### ❓4. 刷新Token
+### ✅3. 刷新Token
 POST {{baseUrl}}/api/user/refresh-token
 Content-Type: {{contentType}}
 
 {
-    "refreshToken": "your_refresh_token_here"
+    "refreshToken": "refresh_1_1735648800000"
 }
 
-### ========== 用户管理 ==========
+### ========== 用户管理接口（按文档要求） ==========
 
-### 5. 用户注册
+### ✅4. 用户注册
 POST {{baseUrl}}/api/user/register
 Content-Type: {{contentType}}
 
 {
-    "username": "newuser001",
-    "password": "password123",
-    "realName": "张三",
-    "email": "zhangsan@example.com",
-    "phone": "13800138001",
-    "gender": 1,
-    "description": "测试用户账号"
+    "username": "testuser",
+    "password": "test123",
+    "realName": "测试用户",
+    "email": "test@example.com",
+    "phone": "13800138000"
 }
 
-### 6. 根据ID获取用户信息
+### ✅5. 获取用户信息（文档要求的接口）
+GET {{baseUrl}}/api/user/info?userId=1
+
+### ✅6. 更新用户信息（文档要求的接口）
+PUT {{baseUrl}}/api/user/info
+Content-Type: {{contentType}}
+
+{
+    "id": 1,
+    "realName": "管理员（更新）",
+    "email": "admin_updated@example.com",
+    "phone": "13800138001"
+}
+
+### ✅7. 修改密码（文档要求的接口）
+PUT {{baseUrl}}/api/user/password
+Content-Type: {{contentType}}
+
+{
+    "userId": "1",
+    "oldPassword": "test123",
+    "newPassword": "newpassword123"
+}
+
+### ✅8. 用户列表查询（文档要求的接口）
+GET {{baseUrl}}/api/user/list?current=1&size=10
+
+### ✅9. 用户列表查询（带条件筛选）
+GET {{baseUrl}}/api/user/list?current=1&size=10&username=testuser&status=1
+
+### ========== 其他用户管理接口 ==========
+
+### ✅10. 根据ID获取用户信息
 GET {{baseUrl}}/api/user/1
 
-### 7. 更新用户信息
+### ✅11. 更新用户信息（管理员使用）
 PUT {{baseUrl}}/api/user/1
 Content-Type: {{contentType}}
 
 {
-    "realName": "张三（更新）",
-    "email": "zhangsan_updated@example.com",
-    "phone": "13800138002",
-    "description": "更新后的用户信息"
+    "realName": "管理员（管理员更新）",
+    "email": "admin_admin_updated@example.com",
+    "phone": "13800138002"
 }
 
-### 8. 删除用户
-DELETE {{baseUrl}}/api/user/1
+### 12. 删除用户
+DELETE {{baseUrl}}/api/user/2
 
-### 9. 批量删除用户
+### 13. 批量删除用户
 DELETE {{baseUrl}}/api/user/batch
 Content-Type: {{contentType}}
 
-[1, 2, 3]
+[3, 4, 5]
 
-### 10. 更新用户状态（启用）
+### 14. 更新用户状态（启用）
 PUT {{baseUrl}}/api/user/1/status?status=1
 
-### 11. 更新用户状态（禁用）
+### 15. 更新用户状态（禁用）
 PUT {{baseUrl}}/api/user/1/status?status=0
 
-### 12. 重置用户密码
+### ✅16. 重置用户密码
 PUT {{baseUrl}}/api/user/1/reset-password
 Content-Type: {{contentType}}
 
 {
-    "newPassword": "newpassword123"
+    "newPassword": "resetpassword123"
 }
 
-### 13. 修改用户密码
+### ✅17. 修改用户密码（管理员使用）
 PUT {{baseUrl}}/api/user/1/change-password
 Content-Type: {{contentType}}
 
 {
-    "oldPassword": "oldpassword123",
-    "newPassword": "newpassword456"
+    "oldPassword": "resetpassword123",
+    "newPassword": "finalpassword123"
 }
 
-### ========== 用户查询 ==========
+### ========== 用户查询接口 ==========
 
-### 14. 根据用户名获取用户
-GET {{baseUrl}}/api/user/username/admin
+### ✅18. 根据用户名获取用户
+GET {{baseUrl}}/api/user/username/testuser
 
-### 15. 根据邮箱获取用户
+### ✅19. 根据邮箱获取用户
 GET {{baseUrl}}/api/user/email/admin@example.com
 
-### 16. 分页查询用户信息（基础查询）
+### ✅20. 分页查询用户信息（保留原有接口）
 GET {{baseUrl}}/api/user/page?current=1&size=10
 
-### 17. 分页查询用户信息（带筛选条件）
-GET {{baseUrl}}/api/user/page?current=1&size=10&username=test&realName=张&email=@example.com&status=1
+### 21. 分页查询用户信息（带筛选条件）
+GET {{baseUrl}}/api/user/page?current=1&size=10&username=admin&realName=admin&status=1
 
-### ========== 角色管理 ==========
+### ========== 用户角色关系管理 ==========
 
-### 18. 新增角色
+### ✅22. 为用户分配角色
+POST {{baseUrl}}/api/user/1/roles
+Content-Type: {{contentType}}
+
+[1, 2]
+
+### ✅23. 获取用户的角色
+GET {{baseUrl}}/api/user/1/roles
+
+### ========== 权限验证接口 ==========
+
+### ✅24. 检查用户是否有指定权限
+GET {{baseUrl}}/api/user/2/has-permission/video:query
+
+### ✅25. 检查用户是否有指定角色
+GET {{baseUrl}}/api/user/2/has-role/SUPER_ADMIN
+
+### ========== 统计信息接口 ==========
+
+### ✅26. 获取用户统计概览
+GET {{baseUrl}}/api/user/statistics
+
+### ✅27. 获取用户总数
+GET {{baseUrl}}/api/user/count
+
+### ========== 角色管理接口（Controller中已实现） ==========
+
+### ✅28. 新增角色
 POST {{baseUrl}}/api/user/role
 Content-Type: {{contentType}}
 
 {
-    "roleName": "监控管理员",
-    "roleCode": "MONITOR_ADMIN",
-    "description": "负责监控系统的管理和维护",
+    "roleName": "测试角色2",
+    "roleCode": "TEST_ROLE_1",
+    "description": "用于测试的角色",
     "status": 1
 }
 
-### 19. 更新角色
+### ✅29. 更新角色
 PUT {{baseUrl}}/api/user/role/1
 Content-Type: {{contentType}}
 
 {
-    "roleName": "高级监控管理员",
-    "roleCode": "SENIOR_MONITOR_ADMIN",
-    "description": "负责监控系统的高级管理和维护",
+    "roleName": "超级管理员（更新）",
+    "roleCode": "SUPER_ADMIN_UPDATED",
+    "description": "更新后的超级管理员角色",
     "status": 1
 }
 
-### 20. 删除角色
-DELETE {{baseUrl}}/api/user/role/1
+### 30. 删除角色
+DELETE {{baseUrl}}/api/user/role/5
 
-### 21. 获取所有角色
+### ✅✅✅31. 获取所有角色
 GET {{baseUrl}}/api/user/role/all
 
-### 22. 分页查询角色
+### ✅32. 分页查询角色
 GET {{baseUrl}}/api/user/role/page?current=1&size=10&roleName=管理员&status=1
 
-### ========== 权限管理 ==========
+### ========== 权限管理接口（Controller中已实现） ==========
 
-### 23. 新增权限
+### 33. 新增权限
 POST {{baseUrl}}/api/user/permission
 Content-Type: {{contentType}}
 
 {
-    "permissionName": "视频查看",
-    "permissionCode": "VIDEO_VIEW",
-    "permissionType": 1,
-    "description": "查看监控视频的权限",
+    "permissionName": "测试权限",
+    "permissionCode": "test:permission",
+    "permissionDescription": "用于测试的权限",
+    "permissionType": 3,
     "status": 1
 }
 
-### 24. 更新权限
+### 34. 更新权限
 PUT {{baseUrl}}/api/user/permission/1
 Content-Type: {{contentType}}
 
 {
-    "permissionName": "视频查看（更新）",
-    "permissionCode": "VIDEO_VIEW_UPDATED",
-    "permissionType": 1,
-    "description": "查看监控视频的权限（更新版）",
+    "permissionName": "视频信息查询（更新）",
+    "permissionCode": "video:query:updated",
+    "permissionDescription": "更新后的视频查询权限",
+    "permissionType": 3,
     "status": 1
 }
 
-### 25. 删除权限
-DELETE {{baseUrl}}/api/user/permission/1
+### 35. 删除权限
+DELETE {{baseUrl}}/api/user/permission/17
 
-### 26. 获取所有权限
+### 36. 获取所有权限
 GET {{baseUrl}}/api/user/permission/all
 
-### 27. 分页查询权限
-GET {{baseUrl}}/api/user/permission/page?current=1&size=10&permissionName=视频&permissionType=1&status=1
-
-### ========== 用户角色关系管理 ==========
-
-### 28. 为用户分配角色
-POST {{baseUrl}}/api/user/1/roles
-Content-Type: {{contentType}}
-
-[1, 2, 3]
-
-### 29. 获取用户的角色
-GET {{baseUrl}}/api/user/1/roles
+### 37. 分页查询权限
+GET {{baseUrl}}/api/user/permission/page?current=1&size=10&permissionName=视频&permissionType=3&status=1
 
 ### ========== 角色权限关系管理 ==========
 
-### 30. 为角色分配权限
-POST {{baseUrl}}/api/user/role/1/permissions
+### 38. 为角色分配权限
+POST {{baseUrl}}/api/user/role/2/permissions
 Content-Type: {{contentType}}
 
-[1, 2, 3, 4, 5]
+[1, 2, 3, 6, 7]
 
-### 31. 获取角色的权限
+### ✅39. 获取角色的权限
 GET {{baseUrl}}/api/user/role/1/permissions
 
-### 32. 获取用户的权限
-GET {{baseUrl}}/api/user/1/permissions
+### ✅40. 获取角色的权限（监控管理员）
+GET {{baseUrl}}/api/user/role/2/permissions
 
-### ========== 权限验证 ==========
+### ========== 测试用例说明 ==========
 
-### 33. 检查用户是否有指定权限
-GET {{baseUrl}}/api/user/1/has-permission/VIDEO_VIEW
+# 🔄 测试流程建议:
+# 1. 先执行用户注册 (#4)
+# 2. 然后执行用户登录 (#1)
+# 3. 测试获取用户信息 (#5)
+# 4. 测试更新用户信息 (#6)
+# 5. 测试修改密码 (#7)
+# 6. 测试用户列表查询 (#8, #9)
+# 7. 测试角色分配 (#22)
+# 8. 测试权限验证 (#24, #25)
 
-### 34. 检查用户是否有指定角色
-GET {{baseUrl}}/api/user/1/has-role/ADMIN
-
-### ========== 统计信息 ==========
-
-### 35. 获取用户统计概览
-GET {{baseUrl}}/api/user/statistics
-
-### 36. 获取用户总数
-GET {{baseUrl}}/api/user/count
-
-### ========== 测试数据创建 ==========
-
-### ✅37. 创建多个测试用户
-POST {{baseUrl}}/api/user/register
-Content-Type: {{contentType}}
-
-{
-    "username": "monitor001",
-    "password": "monitor123",
-    "realName": "监控员001",
-    "email": "monitor001@example.com",
-    "phone": "13900139001",
-    "gender": 1,
-    "description": "监控系统操作员"
-}
-
-### ✅
-POST {{baseUrl}}/api/user/register
-Content-Type: {{contentType}}
-
-{
-    "username": "analyst001",
-    "password": "analyst123",
-    "realName": "分析员001",
-    "email": "analyst001@example.com",
-    "phone": "13900139002",
-    "gender": 2,
-    "description": "视频分析专员"
-}
-
-### 38. ✅创建测试角色
-POST {{baseUrl}}/api/user/role
-Content-Type: {{contentType}}
-
-{
-    "roleName": "视频分析师",
-    "roleCode": "VIDEO_ANALYST",
-    "description": "负责视频内容分析和数据统计",
-    "status": 1
-}
-
-### ✅
-POST {{baseUrl}}/api/user/role
-Content-Type: {{contentType}}
-
-{
-    "roleName": "系统观察员",
-    "roleCode": "SYSTEM_OBSERVER",
-    "description": "只能查看系统信息，无操作权限",
-    "status": 1
-}
-
-### 39. 创建测试权限
-POST {{baseUrl}}/api/user/permission
-Content-Type: {{contentType}}
-
-{
-    "permissionName": "视频分析",
-    "permissionCode": "VIDEO_ANALYSIS",
-    "permissionType": 2,
-    "description": "执行视频分析操作的权限",
-    "status": 1
-}
-
-###
-POST {{baseUrl}}/api/user/permission
-Content-Type: {{contentType}}
-
-{
-    "permissionName": "数据导出",
-    "permissionCode": "DATA_EXPORT",
-    "permissionType": 2,
-    "description": "导出系统数据的权限",
-    "status": 1
-}
-
-### ========== 错误测试场景 ==========
-
-### ✅40. 测试错误的登录信息
-POST {{baseUrl}}/api/user/login
-Content-Type: {{contentType}}
-
-{
-    "username": "wronguser",
-    "password": "wrongpassword"
-}
-
-### ✅41. 测试获取不存在的用户
-GET {{baseUrl}}/api/user/19999
-
-### ✅42. 测试重复用户名注册
-POST {{baseUrl}}/api/user/register
-Content-Type: {{contentType}}
-
-{
-    "username": "admin",
-    "password": "password123",
-    "realName": "重复用户",
-    "email": "duplicate@example.com"
-}
-
-### ========== 权限测试场景 ==========
-
-### 43. 测试不存在的权限检查
-GET {{baseUrl}}/api/user/1/has-permission/NON_EXISTENT_PERMISSION
-
-### 44. 测试不存在的角色检查
-GET {{baseUrl}}/api/user/1/has-role/NON_EXISTENT_ROLE 
+# 📊 数据库当前状态:
+# - 用户: testuser (ID:1), admin (ID:2)
+# - 角色: 超级管理员(ID:1), 监控管理员(ID:2), 安全管理员(ID:3), 数据分析员(ID:4)
+# - admin用户已分配超级管理员角色
+# - testuser用户尚未分配角色

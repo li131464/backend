@@ -2,6 +2,8 @@ package com.fyp.handsome.mapper;
 
 import java.util.List;
 
+import org.apache.ibatis.annotations.Delete;
+import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Select;
 import org.apache.ibatis.annotations.Update;
@@ -113,4 +115,40 @@ public interface UserMapper extends BaseMapper<User> {
      */
     @Select("SELECT status, COUNT(*) as count FROM user_info GROUP BY status")
     List<Object> countByStatus();
+
+    /**
+     * 根据角色ID查询用户列表
+     * @param roleId 角色ID
+     * @return 用户列表
+     */
+    @Select("SELECT u.* FROM user_info u " +
+            "INNER JOIN user_role ur ON u.id = ur.user_id " +
+            "WHERE ur.role_id = #{roleId} AND u.status = 1")
+    List<User> selectUsersByRoleId(@Param("roleId") Long roleId);
+
+    /**
+     * 删除用户的所有角色关联
+     * @param userId 用户ID
+     * @return 影响行数
+     */
+    @Delete("DELETE FROM user_role WHERE user_id = #{userId}")
+    int deleteUserRoles(@Param("userId") Long userId);
+
+    /**
+     * 插入用户角色关联
+     * @param userId 用户ID
+     * @param roleId 角色ID
+     * @return 影响行数
+     */
+    @Insert("INSERT INTO user_role (user_id, role_id, create_time) VALUES (#{userId}, #{roleId}, NOW())")
+    int insertUserRole(@Param("userId") Long userId, @Param("roleId") Long roleId);
+
+    /**
+     * 删除用户指定的角色关联
+     * @param userId 用户ID
+     * @param roleId 角色ID
+     * @return 影响行数
+     */
+    @Delete("DELETE FROM user_role WHERE user_id = #{userId} AND role_id = #{roleId}")
+    int deleteUserRoleByRoleId(@Param("userId") Long userId, @Param("roleId") Long roleId);
 } 

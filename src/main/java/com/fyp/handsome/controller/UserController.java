@@ -127,6 +127,25 @@ public class UserController {
     }
 
     /**
+     * 获取当前用户信息
+     */
+    @GetMapping("/info")
+    public Result<User> getUserInfo(@RequestParam Long userId) {
+        try {
+            User user = userService.getById(userId);
+            if (user != null) {
+                return Result.success(user);
+            } else {
+                return Result.error(ResultCode.USER_NOT_FOUND);
+            }
+            
+        } catch (Exception e) {
+            log.error("获取用户信息失败，userId：{}，错误：{}", userId, e.getMessage(), e);
+            return Result.error("获取用户信息失败：" + e.getMessage());
+        }
+    }
+
+    /**
      * 根据ID获取用户信息
      */
     @GetMapping("/{id}")
@@ -146,7 +165,25 @@ public class UserController {
     }
 
     /**
-     * 更新用户信息
+     * 更新当前用户信息
+     */
+    @PutMapping("/info")
+    public Result<Void> updateUserInfo(@RequestBody User user) {
+        try {
+            if (userService.updateUser(user)) {
+                return Result.success();
+            } else {
+                return Result.error("用户信息更新失败");
+            }
+            
+        } catch (Exception e) {
+            log.error("更新用户信息失败，userId：{}，错误：{}", user.getId(), e.getMessage(), e);
+            return Result.error("更新用户信息失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 更新用户信息（管理员使用）
      */
     @PutMapping("/{id}")
     public Result<Void> updateUser(@PathVariable Long id, @RequestBody User user) {
@@ -162,6 +199,28 @@ public class UserController {
         } catch (Exception e) {
             log.error("更新用户信息失败，id：{}，错误：{}", id, e.getMessage(), e);
             return Result.error("更新用户信息失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 修改密码
+     */
+    @PutMapping("/password")
+    public Result<Void> changePassword(@RequestBody Map<String, String> params) {
+        try {
+            Long userId = Long.valueOf(params.get("userId"));
+            String oldPassword = params.get("oldPassword");
+            String newPassword = params.get("newPassword");
+            
+            if (userService.changePassword(userId, oldPassword, newPassword)) {
+                return Result.success();
+            } else {
+                return Result.error(ResultCode.PASSWORD_ERROR);
+            }
+            
+        } catch (Exception e) {
+            log.error("修改密码失败，错误：{}", e.getMessage(), e);
+            return Result.error("修改密码失败：" + e.getMessage());
         }
     }
 
@@ -240,10 +299,10 @@ public class UserController {
     }
 
     /**
-     * 修改用户密码
+     * 修改用户密码（管理员使用）
      */
     @PutMapping("/{id}/change-password")
-    public Result<Void> changePassword(@PathVariable Long id, @RequestBody Map<String, String> params) {
+    public Result<Void> changePasswordById(@PathVariable Long id, @RequestBody Map<String, String> params) {
         try {
             String oldPassword = params.get("oldPassword");
             String newPassword = params.get("newPassword");
@@ -301,7 +360,30 @@ public class UserController {
     }
 
     /**
-     * 分页查询用户信息
+     * 用户列表查询（支持分页和条件查询）
+     */
+    @GetMapping("/list")
+    public Result<IPage<User>> getUserList(
+            @RequestParam(defaultValue = "1") Integer current,
+            @RequestParam(defaultValue = "10") Integer size,
+            @RequestParam(required = false) String username,
+            @RequestParam(required = false) String realName,
+            @RequestParam(required = false) String email,
+            @RequestParam(required = false) Integer status) {
+        try {
+            Page<User> page = new Page<>(current, size);
+            IPage<User> result = userService.getUsersPage(page, username, realName, email, status);
+            
+            return Result.success(result);
+            
+        } catch (Exception e) {
+            log.error("用户列表查询失败，错误：{}", e.getMessage(), e);
+            return Result.error("用户列表查询失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 分页查询用户信息（保留原有接口）
      */
     @GetMapping("/page")
     public Result<IPage<User>> getUsersPage(
