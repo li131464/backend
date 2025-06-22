@@ -12,7 +12,7 @@ import com.fyp.handsome.entity.Video;
 /**
  * 视频服务接口
  * 负责视频CRUD、备份恢复逻辑
- * @author fyp
+ * @author ziye
  */
 public interface VideoService extends IService<Video> {
 

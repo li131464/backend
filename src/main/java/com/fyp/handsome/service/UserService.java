@@ -13,7 +13,7 @@ import com.fyp.handsome.entity.User;
 /**
  * 用户服务接口
  * 负责用户认证、权限管理逻辑
- * @author fyp
+ * @author ziye
  */
 public interface UserService extends IService<User> {
 

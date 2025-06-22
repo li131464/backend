@@ -13,7 +13,7 @@ import com.fyp.handsome.entity.Video;
 
 /**
  * 视频信息Mapper接口
- * @author fyp
+ * @author ziye
  */
 public interface VideoMapper extends BaseMapper<Video> {
 

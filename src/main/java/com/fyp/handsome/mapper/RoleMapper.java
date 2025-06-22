@@ -14,7 +14,7 @@ import com.fyp.handsome.entity.Role;
 
 /**
  * 角色Mapper接口
- * @author fyp
+ * @author ziye
  */
 public interface RoleMapper extends BaseMapper<Role> {
 

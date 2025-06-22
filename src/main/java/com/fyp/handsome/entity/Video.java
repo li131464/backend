@@ -15,7 +15,7 @@ import lombok.EqualsAndHashCode;
 /**
  * 视频信息实体类
  * 对应数据库表：video_info
- * @author fyp
+ * @author ziye
  */
 @Data
 @EqualsAndHashCode(callSuper = false)

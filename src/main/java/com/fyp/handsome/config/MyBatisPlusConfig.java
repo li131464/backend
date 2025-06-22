@@ -10,7 +10,7 @@ import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 
 /**
  * MyBatis Plus 配置类
- * @author fyp
+ * @author ziye
  */
 @Configuration
 public class MyBatisPlusConfig {

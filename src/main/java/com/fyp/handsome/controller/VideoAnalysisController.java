@@ -26,7 +26,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 视频分析控制器
- * @author fyp
+ * @author ziye
  */
 @Slf4j
 @RestController

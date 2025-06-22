@@ -21,7 +21,7 @@ import lombok.extern.slf4j.Slf4j;
 
 /**
  * 视频服务实现类
- * @author fyp
+ * @author ziye
  */
 @Slf4j
 @Service

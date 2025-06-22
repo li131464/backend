@@ -4,7 +4,7 @@ import lombok.Getter;
 
 /**
  * 统一响应状态码枚举
- * @author fyp
+ * @author ziye
  */
 @Getter
 public enum ResultCode {
