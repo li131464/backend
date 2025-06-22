@@ -12,7 +12,7 @@ import com.fyp.handsome.entity.Permission;
 
 /**
  * 权限Mapper接口
- * @author fyp
+ * @author ziye
  */
 public interface PermissionMapper extends BaseMapper<Permission> {
 

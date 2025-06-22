@@ -14,7 +14,7 @@ import lombok.EqualsAndHashCode;
 /**
  * 用户信息实体类
  * 对应数据库表：user_info
- * @author fyp
+ * @author ziye
  */
 @Data
 @EqualsAndHashCode(callSuper = false)

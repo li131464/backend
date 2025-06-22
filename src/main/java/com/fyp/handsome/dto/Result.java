@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 /**
  * 统一API响应结果封装类
  * @param <T> 响应数据类型
- * @author fyp
+ * @author ziye
  */
 @Data
 @NoArgsConstructor

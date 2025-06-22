@@ -15,7 +15,7 @@ import com.fyp.handsome.entity.User;
 
 /**
  * 用户信息Mapper接口
- * @author fyp
+ * @author ziye
  */
 public interface UserMapper extends BaseMapper<User> {
 

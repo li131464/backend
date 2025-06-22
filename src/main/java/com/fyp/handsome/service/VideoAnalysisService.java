@@ -12,7 +12,7 @@ import com.fyp.handsome.entity.VideoAnalysisResult;
 /**
  * 视频分析服务接口
  * 负责视频分析、统计逻辑
- * @author fyp
+ * @author ziye
  */
 public interface VideoAnalysisService extends IService<VideoAnalysisResult> {
 

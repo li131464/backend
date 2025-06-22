@@ -7,7 +7,7 @@ import java.util.Map;
 /**
  * 可视化服务接口
  * 负责地图展示、报表生成逻辑
- * @author fyp
+ * @author ziye
  */
 public interface VisualizationService {
 

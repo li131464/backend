@@ -13,7 +13,7 @@ import com.fyp.handsome.entity.VideoAnalysisResult;
 
 /**
  * 视频分析结果Mapper接口
- * @author fyp
+ * @author ziye
  */
 public interface VideoAnalysisResultMapper extends BaseMapper<VideoAnalysisResult> {
 
