@@ -481,4 +481,86 @@ public class AliyunVideoAnalysisService {
         config.put("accessKeySecretConfigured", !accessKeySecret.isEmpty() ? "是" : "否");
         return config;
     }
+
+    /**
+     * 提取视频分析结果中的核心JSON内容
+     * @param response 阿里云完整响应
+     * @return 解析后的JSON对象
+     */
+    public Object extractAnalysisResult(GetVideoAnalysisTaskResponse response) {
+        try {
+            log.info("开始提取视频分析结果");
+            
+            // 获取videoAnalysisResult中的text字段
+            var data = response.getBody().getData();
+            if (data != null && data.getPayload() != null && data.getPayload().getOutput() != null) {
+                var output = data.getPayload().getOutput();
+                if (output.getVideoAnalysisResult() != null) {
+                    String text = output.getVideoAnalysisResult().getText();
+                    if (text != null && !text.isEmpty()) {
+                        log.info("获取到分析结果文本，开始提取JSON内容");
+                        
+                        // 提取JSON部分（去除前面的描述文字）
+                        String jsonPart = extractJsonFromText(text);
+                        if (jsonPart != null) {
+                            // 使用Gson解析JSON字符串
+                            Gson gson = new Gson();
+                            Object result = gson.fromJson(jsonPart, Object.class);
+                            log.info("JSON内容提取并解析成功");
+                            return result;
+                        }
+                    }
+                }
+            }
+            
+            log.warn("未能提取到有效的分析结果");
+            return null;
+            
+        } catch (Exception e) {
+            log.error("提取分析结果失败：{}", e.getMessage(), e);
+            return null;
+        }
+    }
+
+    /**
+     * 从text字段中提取JSON内容
+     * @param text 包含JSON的文本
+     * @return 纯JSON字符串
+     */
+    private String extractJsonFromText(String text) {
+        try {
+            log.debug("开始从文本中提取JSON内容");
+            
+            // 查找```json和```之间的内容
+            int jsonStart = text.indexOf("```json");
+            if (jsonStart != -1) {
+                jsonStart = text.indexOf("\n", jsonStart) + 1; // 跳过```json行
+                int jsonEnd = text.indexOf("```", jsonStart);
+                if (jsonEnd != -1) {
+                    String jsonContent = text.substring(jsonStart, jsonEnd).trim();
+                    log.debug("通过```json标记提取到JSON内容");
+                    return jsonContent;
+                }
+            }
+            
+            // 如果没有找到```json标记，尝试查找第一个{开始的JSON
+            int firstBrace = text.indexOf("{");
+            if (firstBrace != -1) {
+                // 查找最后一个}
+                int lastBrace = text.lastIndexOf("}");
+                if (lastBrace != -1 && lastBrace > firstBrace) {
+                    String jsonContent = text.substring(firstBrace, lastBrace + 1).trim();
+                    log.debug("通过{}括号提取到JSON内容");
+                    return jsonContent;
+                }
+            }
+            
+            log.warn("未能从文本中提取到有效的JSON内容");
+            return null;
+            
+        } catch (Exception e) {
+            log.error("从文本中提取JSON失败：{}", e.getMessage(), e);
+            return null;
+        }
+    }
 } 

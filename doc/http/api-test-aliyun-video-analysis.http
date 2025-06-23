@@ -6,16 +6,10 @@ Content-Type: application/json
     "videoUrl": "https://ziyeimg.oss-cn-shanghai.aliyuncs.com/ob/%E5%BE%AE%E4%BF%A1%E8%A7%86%E9%A2%912025-06-23_164747_137.mp4"
 }
 
-### ✅4. 查询视频分析任务结果（GET方式）- 使用上面获取的taskId
-GET http://localhost:8190/api/aliyun/video-analysis/task?taskId=ce6a4ad199eb4b309ae0310e3e41cf42
-Content-Type: application/json
-
-###
-
-### ✅5. 查询视频分析任务结果（POST方式）- 使用上面获取的taskId
-POST http://localhost:8190/api/aliyun/video-analysis/task/query
+### ✅7. 获取视频分析结果（简化版POST）- 只返回核心JSON分析结果
+POST http://localhost:8190/api/aliyun/video-analysis/result/query
 Content-Type: application/json
 
 {
-    "taskId": "9af23347f354493b9c155247575872fe"
+    "taskId": "f547108b8bc14d30b51a34e60ae47f54"
 }

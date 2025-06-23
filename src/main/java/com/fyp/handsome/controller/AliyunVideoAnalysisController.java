@@ -1,18 +1,17 @@
 package com.fyp.handsome.controller;
 
-import java.util.Map;
-
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aliyun.sdk.service.quanmiaolightapp20240801.models.GetVideoAnalysisTaskResponse;
 import com.aliyun.sdk.service.quanmiaolightapp20240801.models.SubmitVideoAnalysisTaskResponse;
 import com.fyp.handsome.dto.Result;
+import com.fyp.handsome.dto.video.TaskQueryRequest;
+import com.fyp.handsome.dto.video.VideoAnalysisRequest;
+import com.fyp.handsome.dto.video.VideoAnalysisTaskInfo;
 import com.fyp.handsome.service.impl.analysis.AliyunVideoAnalysisService;
 
 import lombok.extern.slf4j.Slf4j;
@@ -73,41 +72,14 @@ public class AliyunVideoAnalysisController {
     }
 
     /**
-     * 查询视频分析任务结果
-     * @param taskId 任务ID
-     * @return Result<GetVideoAnalysisTaskResponse> 任务结果
-     */
-    @GetMapping("/task")
-    public Result<GetVideoAnalysisTaskResponse> getVideoAnalysisTask(@RequestParam String taskId) {
-        try {
-            log.info("收到查询视频分析任务请求，taskId：{}", taskId);
-            
-            // 验证请求参数
-            if (taskId == null || taskId.trim().isEmpty()) {
-                return Result.error("任务ID不能为空");
-            }
-            
-            // 查询任务结果
-            GetVideoAnalysisTaskResponse response = aliyunVideoAnalysisService.getVideoAnalysisTask(taskId.trim());
-            
-            log.info("查询视频分析任务成功，taskId：{}，状态：{}", taskId, response.getBody().getData().getTaskStatus());
-            return Result.success("查询视频分析任务成功", response);
-            
-        } catch (Exception e) {
-            log.error("查询视频分析任务失败，taskId：{}，错误：{}", taskId, e.getMessage(), e);
-            return Result.error("查询视频分析任务失败：" + e.getMessage());
-        }
-    }
-
-    /**
-     * 查询视频分析任务结果（POST方式）
+     * 获取视频分析结果（POST方式，简化版）
      * @param request 查询请求
-     * @return Result<GetVideoAnalysisTaskResponse> 任务结果
+     * @return Result<Object> 简化的分析结果
      */
-    @PostMapping("/task/query")
-    public Result<GetVideoAnalysisTaskResponse> queryVideoAnalysisTask(@RequestBody TaskQueryRequest request) {
+    @PostMapping("/result/query")
+    public Result<Object> queryVideoAnalysisResult(@RequestBody TaskQueryRequest request) {
         try {
-            log.info("收到查询视频分析任务请求，taskId：{}", request.getTaskId());
+            log.info("收到获取视频分析结果请求，taskId：{}", request.getTaskId());
             
             // 验证请求参数
             if (request.getTaskId() == null || request.getTaskId().trim().isEmpty()) {
@@ -116,175 +88,28 @@ public class AliyunVideoAnalysisController {
             
             // 查询任务结果
             GetVideoAnalysisTaskResponse response = aliyunVideoAnalysisService.getVideoAnalysisTask(request.getTaskId().trim());
+            String taskStatus = response.getBody().getData().getTaskStatus();
             
-            log.info("查询视频分析任务成功，taskId：{}，状态：{}", request.getTaskId(), response.getBody().getData().getTaskStatus());
-            return Result.success("查询视频分析任务成功", response);
+            log.info("查询视频分析任务状态，taskId：{}，状态：{}", request.getTaskId(), taskStatus);
+            
+            // 根据任务状态返回不同结果
+            if ("RUNNING".equals(taskStatus)) {
+                return Result.success("视频分析还在处理中", "视频分析还在处理中");
+            } else if ("SUCCESSED".equals(taskStatus)) {
+                // 调用service层的方法提取核心分析结果
+                Object analysisResult = aliyunVideoAnalysisService.extractAnalysisResult(response);
+                if (analysisResult != null) {
+                    return Result.success("视频分析完成", analysisResult);
+                } else {
+                    return Result.error("分析结果为空");
+                }
+            } else {
+                return Result.error("任务状态异常：" + taskStatus);
+            }
             
         } catch (Exception e) {
-            log.error("查询视频分析任务失败，taskId：{}，错误：{}", request.getTaskId(), e.getMessage(), e);
-            return Result.error("查询视频分析任务失败：" + e.getMessage());
-        }
-    }
-
-    /**
-     * 获取配置信息
-     * @return Result<Map<String, String>> 阿里云配置信息
-     */
-    @GetMapping("/config")
-    public Result<Map<String, String>> getConfig() {
-        try {
-            Map<String, String> config = aliyunVideoAnalysisService.getConfigInfo();
-            return Result.success("获取配置信息成功", config);
-        } catch (Exception e) {
-            log.error("获取配置信息失败，错误：{}", e.getMessage(), e);
-            return Result.error("获取配置信息失败：" + e.getMessage());
-        }
-    }
-
-    /**
-     * 视频分析请求DTO
-     */
-    public static class VideoAnalysisRequest {
-        /**
-         * 视频URL地址
-         */
-        private String videoUrl;
-        
-        /**
-         * 自定义分析提示模板（可选）
-         */
-        private String customPromptTemplate;
-
-        // Getter和Setter方法
-        public String getVideoUrl() {
-            return videoUrl;
-        }
-
-        public void setVideoUrl(String videoUrl) {
-            this.videoUrl = videoUrl;
-        }
-
-        public String getCustomPromptTemplate() {
-            return customPromptTemplate;
-        }
-
-        public void setCustomPromptTemplate(String customPromptTemplate) {
-            this.customPromptTemplate = customPromptTemplate;
-        }
-
-        @Override
-        public String toString() {
-            return "VideoAnalysisRequest{" +
-                    "videoUrl='" + videoUrl + '\'' +
-                    ", customPromptTemplate='" + (customPromptTemplate != null ? "已设置" : "未设置") + '\'' +
-                    '}';
-        }
-    }
-
-    /**
-     * 任务查询请求DTO
-     */
-    public static class TaskQueryRequest {
-        /**
-         * 任务ID
-         */
-        private String taskId;
-
-        // Getter和Setter方法
-        public String getTaskId() {
-            return taskId;
-        }
-
-        public void setTaskId(String taskId) {
-            this.taskId = taskId;
-        }
-
-        @Override
-        public String toString() {
-            return "TaskQueryRequest{" +
-                    "taskId='" + taskId + '\'' +
-                    '}';
-        }
-    }
-
-    /**
-     * 视频分析任务信息DTO
-     */
-    public static class VideoAnalysisTaskInfo {
-        /**
-         * 任务ID
-         */
-        private String taskId;
-        
-        /**
-         * 视频URL
-         */
-        private String videoUrl;
-        
-        /**
-         * 任务状态
-         */
-        private String status;
-        
-        /**
-         * 提示消息
-         */
-        private String message;
-        
-        /**
-         * 提交时间（时间戳）
-         */
-        private Long submitTime;
-
-        // Getter和Setter方法
-        public String getTaskId() {
-            return taskId;
-        }
-
-        public void setTaskId(String taskId) {
-            this.taskId = taskId;
-        }
-
-        public String getVideoUrl() {
-            return videoUrl;
-        }
-
-        public void setVideoUrl(String videoUrl) {
-            this.videoUrl = videoUrl;
-        }
-
-        public String getStatus() {
-            return status;
-        }
-
-        public void setStatus(String status) {
-            this.status = status;
-        }
-
-        public String getMessage() {
-            return message;
-        }
-
-        public void setMessage(String message) {
-            this.message = message;
-        }
-
-        public Long getSubmitTime() {
-            return submitTime;
-        }
-
-        public void setSubmitTime(Long submitTime) {
-            this.submitTime = submitTime;
-        }
-
-        @Override
-        public String toString() {
-            return "VideoAnalysisTaskInfo{" +
-                    "taskId='" + taskId + '\'' +
-                    ", videoUrl='" + videoUrl + '\'' +
-                    ", status='" + status + '\'' +
-                    ", submitTime=" + submitTime +
-                    '}';
+            log.error("获取视频分析结果失败，taskId：{}，错误：{}", request.getTaskId(), e.getMessage(), e);
+            return Result.error("获取视频分析结果失败：" + e.getMessage());
         }
     }
 } 
