@@ -1,0 +1,304 @@
+### 视频监控信息管理系统 - 综合API测试
+### 作者: fyp
+### 说明: 综合测试系统的主要业务流程
+
+### 设置基础URL
+@baseUrl = http://localhost:8190
+@contentType = application/json
+
+### ========== 完整业务流程测试 ==========
+
+### 【流程1：用户登录和权限验证】
+
+### 1.1 管理员登录
+POST {{baseUrl}}/api/user/login
+Content-Type: {{contentType}}
+
+{
+    "username": "admin",
+    "password": "admin123"
+}
+
+### 1.2 检查管理员权限
+GET {{baseUrl}}/api/user/1/has-permission/VIDEO_MANAGE
+
+### 1.3 获取用户角色
+GET {{baseUrl}}/api/user/1/roles
+
+### 【流程2：视频数据管理】
+
+### 2.1 创建视频信息
+POST {{baseUrl}}/api/video
+Content-Type: {{contentType}}
+
+{
+    "videoName": "综合测试-入口监控001",
+    "location": "北京市朝阳区CBD大厦",
+    "source": "入口监控A001",
+    "filePath": "/video/2024/01/entrance_001.mp4",
+    "fileSize": 1024000,
+    "duration": 3600,
+    "resolution": "1920x1080",
+    "frameRate": 25,
+    "format": "MP4",
+    "description": "大厦主要入口监控视频"
+}
+
+### 2.2 查询刚创建的视频
+GET {{baseUrl}}/api/video/page?current=1&size=5&videoName=综合测试
+
+### 2.3 获取视频统计
+GET {{baseUrl}}/api/video/statistics
+
+### 【流程3：视频分析】
+
+### 3.1 执行人脸识别分析
+POST {{baseUrl}}/api/video-analysis/analyze/1?analysisType=face_recognition
+
+### 3.2 执行行为分析
+POST {{baseUrl}}/api/video-analysis/behavior/1
+
+### 3.3 获取分析结果
+GET {{baseUrl}}/api/video-analysis/video/1
+
+### 3.4 获取分析统计
+GET {{baseUrl}}/api/video-analysis/statistics
+
+### 【流程4：数据可视化】
+
+### 4.1 获取仪表板概览
+GET {{baseUrl}}/api/visualization/dashboard/overview
+
+### 4.2 获取监控点地图数据
+GET {{baseUrl}}/api/visualization/map/monitor-points
+
+### 4.3 获取实时告警
+GET {{baseUrl}}/api/visualization/live/alerts?limit=5
+
+### 4.4 获取视频统计图表数据
+GET {{baseUrl}}/api/visualization/dashboard/chart/video-statistics?chartType=line&timeRange=today
+
+### 【流程5：报表生成】
+
+### 5.1 生成日报
+POST {{baseUrl}}/api/visualization/report/video-analysis
+Content-Type: {{contentType}}
+
+{
+    "reportType": "daily",
+    "startTime": "2024-01-15T00:00:00",
+    "endTime": "2024-01-15T23:59:59"
+}
+
+### 5.2 生成分析报表
+POST {{baseUrl}}/api/video-analysis/report
+Content-Type: {{contentType}}
+
+{
+    "reportType": "analysis_summary",
+    "startTime": "2024-01-01T00:00:00",
+    "endTime": "2024-01-15T23:59:59"
+}
+
+### ========== 批量操作测试 ==========
+
+### 【批量数据创建】
+
+### 6.1 批量创建测试视频
+POST {{baseUrl}}/api/video
+Content-Type: {{contentType}}
+
+{
+    "videoName": "批量测试-大厅监控001",
+    "location": "上海市浦东新区金融大厦",
+    "source": "大厅监控B001",
+    "filePath": "/video/2024/01/hall_sh_001.mp4",
+    "fileSize": 512000,
+    "duration": 1800,
+    "resolution": "1920x1080",
+    "frameRate": 30,
+    "format": "MP4",
+    "description": "上海金融大厦大厅监控"
+}
+
+###
+POST {{baseUrl}}/api/video
+Content-Type: {{contentType}}
+
+{
+    "videoName": "批量测试-停车场监控002",
+    "location": "广州市天河区科技园",
+    "source": "停车场监控C002",
+    "filePath": "/video/2024/01/parking_gz_002.mp4",
+    "fileSize": 768000,
+    "duration": 2400,
+    "resolution": "1280x720",
+    "frameRate": 25,
+    "format": "MP4",
+    "description": "广州科技园地下停车场监控"
+}
+
+### 6.2 批量分析
+POST {{baseUrl}}/api/video-analysis/batch-analyze
+Content-Type: {{contentType}}
+
+{
+    "videoIds": [1, 2, 3],
+    "analysisType": "object_detection"
+}
+
+### ========== 性能测试 ==========
+
+### 【大数据量测试】
+
+### 7.1 大分页查询视频
+GET {{baseUrl}}/api/video/page?current=1&size=50
+
+### 7.2 复杂条件查询
+GET {{baseUrl}}/api/video/page?current=1&size=20&videoName=监控&location=北京&startTime=2024-01-01 00:00:00&endTime=2024-12-31 23:59:59
+
+### 7.3 大时间范围分析查询
+GET {{baseUrl}}/api/video-analysis/time-range?startTime=2024-01-01 00:00:00&endTime=2024-12-31 23:59:59
+
+### 7.4 大范围地图查询
+GET {{baseUrl}}/api/visualization/map/monitor-points/area?minLatitude=20.0&maxLatitude=50.0&minLongitude=100.0&maxLongitude=130.0
+
+### ========== 错误处理测试 ==========
+
+### 【异常情况测试】
+
+### 8.1 测试无效登录
+POST {{baseUrl}}/api/user/login
+Content-Type: {{contentType}}
+
+{
+    "username": "invalid_user",
+    "password": "wrong_password"
+}
+
+### 8.2 测试访问不存在的资源
+GET {{baseUrl}}/api/video/99999
+
+### 8.3 测试无效的分析类型
+POST {{baseUrl}}/api/video-analysis/analyze/1?analysisType=invalid_type
+
+### 8.4 测试无效的查询参数
+GET {{baseUrl}}/api/video/page?current=-1&size=0
+
+### ========== 数据清理测试 ==========
+
+### 【清理测试数据】
+
+### 9.1 删除测试分析结果
+DELETE {{baseUrl}}/api/video-analysis/video/1
+
+### 9.2 批量删除测试视频
+DELETE {{baseUrl}}/api/video/batch
+Content-Type: {{contentType}}
+
+[1, 2, 3]
+
+### ========== 系统监控测试 ==========
+
+### 【系统状态检查】
+
+### 10.1 检查系统概览
+GET {{baseUrl}}/api/visualization/dashboard/overview
+
+### 10.2 检查用户统计
+GET {{baseUrl}}/api/user/statistics
+
+### 10.3 检查视频总数
+GET {{baseUrl}}/api/video/count
+
+### 10.4 检查分析统计
+GET {{baseUrl}}/api/video-analysis/statistics
+
+### 10.5 检查支持的功能
+GET {{baseUrl}}/api/video-analysis/supported-types
+
+###
+GET {{baseUrl}}/api/visualization/supported-report-types
+
+###
+GET {{baseUrl}}/api/visualization/supported-chart-types
+
+### ========== 用户权限完整测试 ==========
+
+### 【权限管理测试】
+
+### 11.1 创建测试用户
+POST {{baseUrl}}/api/user/register
+Content-Type: {{contentType}}
+
+{
+    "username": "test_operator",
+    "password": "operator123",
+    "realName": "测试操作员",
+    "email": "operator@test.com",
+    "phone": "13800138000",
+    "description": "测试用操作员账号"
+}
+
+### 11.2 创建测试角色
+POST {{baseUrl}}/api/user/role
+Content-Type: {{contentType}}
+
+{
+    "roleName": "视频操作员",
+    "roleCode": "VIDEO_OPERATOR",
+    "description": "负责视频监控的日常操作",
+    "status": 1
+}
+
+### 11.3 创建测试权限
+POST {{baseUrl}}/api/user/permission
+Content-Type: {{contentType}}
+
+{
+    "permissionName": "视频播放",
+    "permissionCode": "VIDEO_PLAY",
+    "permissionType": 1,
+    "description": "播放监控视频的权限",
+    "status": 1
+}
+
+### 11.4 分配角色给用户
+POST {{baseUrl}}/api/user/2/roles
+Content-Type: {{contentType}}
+
+[2]
+
+### 11.5 分配权限给角色
+POST {{baseUrl}}/api/user/role/2/permissions
+Content-Type: {{contentType}}
+
+[2]
+
+### 11.6 验证权限分配
+GET {{baseUrl}}/api/user/2/permissions
+
+### 11.7 验证用户权限
+GET {{baseUrl}}/api/user/2/has-permission/VIDEO_PLAY
+
+### ========== 实时功能测试 ==========
+
+### 【实时监控测试】
+
+### 12.1 获取实时视频列表
+GET {{baseUrl}}/api/visualization/live/videos
+
+### 12.2 获取特定监控点实时视频
+GET {{baseUrl}}/api/visualization/live/video/1
+
+### 12.3 获取实时告警信息
+GET {{baseUrl}}/api/visualization/live/alerts?limit=10
+
+### 12.4 模拟持续监控（多次请求）
+GET {{baseUrl}}/api/visualization/live/alerts?limit=5
+
+###
+GET {{baseUrl}}/api/visualization/live/alerts?limit=5
+
+###
+GET {{baseUrl}}/api/visualization/live/alerts?limit=5 

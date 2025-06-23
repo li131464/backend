@@ -1,0 +1,253 @@
+### 可视化展示接口测试
+### 作者: fyp
+### 说明: 测试可视化展示相关的所有API接口
+
+### 设置基础URL
+@baseUrl = http://localhost:8190
+@contentType = application/json
+
+### ========== 地图展示 ==========
+
+### 1. 获取监控点地图数据
+GET {{baseUrl}}/api/visualization/map/monitor-points
+
+### 2. 获取指定区域的监控点
+GET {{baseUrl}}/api/visualization/map/monitor-points/area?minLatitude=39.9&maxLatitude=40.1&minLongitude=116.3&maxLongitude=116.5
+
+### 3. 获取监控点状态统计
+GET {{baseUrl}}/api/visualization/map/monitor-points/statistics
+
+### 4. 获取视频热力图数据
+GET {{baseUrl}}/api/visualization/map/heatmap?startTime=2024-01-01 00:00:00&endTime=2024-01-31 23:59:59
+
+### ========== 报表生成 ==========
+
+### 5. 生成视频分析报表（日报）
+POST {{baseUrl}}/api/visualization/report/video-analysis
+Content-Type: {{contentType}}
+
+{
+    "reportType": "daily",
+    "startTime": "2024-01-01T00:00:00",
+    "endTime": "2024-01-01T23:59:59"
+}
+
+### 6. 生成视频分析报表（周报）
+POST {{baseUrl}}/api/visualization/report/video-analysis
+Content-Type: {{contentType}}
+
+{
+    "reportType": "weekly",
+    "startTime": "2024-01-01T00:00:00",
+    "endTime": "2024-01-07T23:59:59"
+}
+
+### 7. 生成视频分析报表（月报）
+POST {{baseUrl}}/api/visualization/report/video-analysis
+Content-Type: {{contentType}}
+
+{
+    "reportType": "monthly",
+    "startTime": "2024-01-01T00:00:00",
+    "endTime": "2024-01-31T23:59:59"
+}
+
+### ========== 实时预览 ==========
+
+### 8. 获取实时监控视频列表
+GET {{baseUrl}}/api/visualization/live/videos
+
+### 9. 获取指定监控点的实时视频
+GET {{baseUrl}}/api/visualization/live/video/1
+
+### 10. 获取实时事件告警（默认10条）
+GET {{baseUrl}}/api/visualization/live/alerts
+
+### 11. 获取实时事件告警（指定数量）
+GET {{baseUrl}}/api/visualization/live/alerts?limit=20
+
+### ========== 仪表板数据 ==========
+
+### 12. 获取仪表板概览数据
+GET {{baseUrl}}/api/visualization/dashboard/overview
+
+### 13. 获取视频统计图表数据（饼图-今日）
+GET {{baseUrl}}/api/visualization/dashboard/chart/video-statistics?chartType=pie&timeRange=today
+
+### 14. 获取视频统计图表数据（柱状图-本周）
+GET {{baseUrl}}/api/visualization/dashboard/chart/video-statistics?chartType=bar&timeRange=this_week
+
+### 15. 获取视频统计图表数据（折线图-本月）
+GET {{baseUrl}}/api/visualization/dashboard/chart/video-statistics?chartType=line&timeRange=this_month
+
+### 16. 获取分析结果统计图表数据（饼图-今日）
+GET {{baseUrl}}/api/visualization/dashboard/chart/analysis-statistics?chartType=pie&timeRange=today
+
+### 17. 获取分析结果统计图表数据（柱状图-本周）
+GET {{baseUrl}}/api/visualization/dashboard/chart/analysis-statistics?chartType=bar&timeRange=this_week
+
+### 18. 获取分析结果统计图表数据（折线图-本月）
+GET {{baseUrl}}/api/visualization/dashboard/chart/analysis-statistics?chartType=line&timeRange=this_month
+
+### ========== 配置管理 ==========
+
+### 19. 获取地图配置
+GET {{baseUrl}}/api/visualization/config/map
+
+### 20. 获取图表配置
+GET {{baseUrl}}/api/visualization/config/chart
+
+### 21. 获取报表配置
+GET {{baseUrl}}/api/visualization/config/report
+
+### 22. 更新地图配置
+PUT {{baseUrl}}/api/visualization/config/map
+Content-Type: {{contentType}}
+
+{
+    "mapType": "baidu",
+    "defaultZoom": 12,
+    "defaultCenter": {
+        "latitude": 39.9042,
+        "longitude": 116.4074
+    },
+    "showTraffic": true,
+    "showSatellite": false
+}
+
+### 23. 更新图表配置
+PUT {{baseUrl}}/api/visualization/config/chart
+Content-Type: {{contentType}}
+
+{
+    "defaultChartType": "line",
+    "colorScheme": "blue",
+    "showLegend": true,
+    "showGrid": true,
+    "animationEnabled": true
+}
+
+### 24. 更新报表配置
+PUT {{baseUrl}}/api/visualization/config/report
+Content-Type: {{contentType}}
+
+{
+    "defaultFormat": "pdf",
+    "includeCharts": true,
+    "includeStatistics": true,
+    "autoGenerate": false,
+    "emailNotification": true
+}
+
+### ========== 功能查询 ==========
+
+### 25. 获取支持的报表类型
+GET {{baseUrl}}/api/visualization/supported-report-types
+
+### 26. 获取支持的图表类型
+GET {{baseUrl}}/api/visualization/supported-chart-types
+
+### ========== 测试不同时间范围的数据 ==========
+
+### 27. 获取昨日视频统计
+GET {{baseUrl}}/api/visualization/dashboard/chart/video-statistics?chartType=bar&timeRange=yesterday
+
+### 28. 获取上周视频统计
+GET {{baseUrl}}/api/visualization/dashboard/chart/video-statistics?chartType=line&timeRange=last_week
+
+### 29. 获取上月视频统计
+GET {{baseUrl}}/api/visualization/dashboard/chart/video-statistics?chartType=area&timeRange=last_month
+
+### 30. 获取今年视频统计
+GET {{baseUrl}}/api/visualization/dashboard/chart/video-statistics?chartType=line&timeRange=this_year
+
+### ========== 测试不同监控点的数据 ==========
+
+### 31. 获取北京地区监控点
+GET {{baseUrl}}/api/visualization/map/monitor-points/area?minLatitude=39.4&maxLatitude=41.0&minLongitude=115.7&maxLongitude=117.4
+
+### 32. 获取上海地区监控点
+GET {{baseUrl}}/api/visualization/map/monitor-points/area?minLatitude=30.4&maxLatitude=31.9&minLongitude=120.9&maxLongitude=122.1
+
+### 33. 获取广州地区监控点
+GET {{baseUrl}}/api/visualization/map/monitor-points/area?minLatitude=22.3&maxLatitude=23.9&minLongitude=112.9&maxLongitude=114.1
+
+### ========== 测试不同分析类型的报表 ==========
+
+### 34. 生成人员流量分析报表
+POST {{baseUrl}}/api/visualization/report/video-analysis
+Content-Type: {{contentType}}
+
+{
+    "reportType": "person_flow",
+    "startTime": "2024-01-01T00:00:00",
+    "endTime": "2024-01-31T23:59:59"
+}
+
+### 35. 生成车辆流量分析报表
+POST {{baseUrl}}/api/visualization/report/video-analysis
+Content-Type: {{contentType}}
+
+{
+    "reportType": "vehicle_flow",
+    "startTime": "2024-01-01T00:00:00",
+    "endTime": "2024-01-31T23:59:59"
+}
+
+### 36. 生成异常事件分析报表
+POST {{baseUrl}}/api/visualization/report/video-analysis
+Content-Type: {{contentType}}
+
+{
+    "reportType": "abnormal_events",
+    "startTime": "2024-01-01T00:00:00",
+    "endTime": "2024-01-31T23:59:59"
+}
+
+### ========== 错误测试场景 ==========
+
+### 37. 测试获取不存在监控点的实时视频
+GET {{baseUrl}}/api/visualization/live/video/99999
+
+### 38. 测试无效的图表类型
+GET {{baseUrl}}/api/visualization/dashboard/chart/video-statistics?chartType=invalid&timeRange=today
+
+### 39. 测试无效的时间范围
+GET {{baseUrl}}/api/visualization/dashboard/chart/video-statistics?chartType=line&timeRange=invalid_range
+
+### 40. 测试无效的配置类型
+GET {{baseUrl}}/api/visualization/config/invalid_config
+
+### ========== 性能测试场景 ==========
+
+### 41. 测试大范围地区监控点查询
+GET {{baseUrl}}/api/visualization/map/monitor-points/area?minLatitude=20.0&maxLatitude=50.0&minLongitude=100.0&maxLongitude=130.0
+
+### 42. 测试大时间范围热力图数据
+GET {{baseUrl}}/api/visualization/map/heatmap?startTime=2024-01-01 00:00:00&endTime=2024-12-31 23:59:59
+
+### 43. 测试获取大量实时告警
+GET {{baseUrl}}/api/visualization/live/alerts?limit=100
+
+### ========== 综合测试场景 ==========
+
+### 44. 模拟仪表板页面加载（获取所有必要数据）
+GET {{baseUrl}}/api/visualization/dashboard/overview
+
+###
+GET {{baseUrl}}/api/visualization/live/alerts?limit=5
+
+###
+GET {{baseUrl}}/api/visualization/dashboard/chart/video-statistics?chartType=line&timeRange=this_week
+
+###
+GET {{baseUrl}}/api/visualization/dashboard/chart/analysis-statistics?chartType=pie&timeRange=today
+
+### 45. 模拟地图页面加载
+GET {{baseUrl}}/api/visualization/map/monitor-points
+
+###
+GET {{baseUrl}}/api/visualization/map/monitor-points/statistics
+
+###
+GET {{baseUrl}}/api/visualization/config/map 
