@@ -10,6 +10,8 @@ import org.springframework.stereotype.Service;
 import com.aliyun.auth.credentials.Credential;
 import com.aliyun.auth.credentials.provider.StaticCredentialProvider;
 import com.aliyun.sdk.service.quanmiaolightapp20240801.AsyncClient;
+import com.aliyun.sdk.service.quanmiaolightapp20240801.models.GetVideoAnalysisTaskRequest;
+import com.aliyun.sdk.service.quanmiaolightapp20240801.models.GetVideoAnalysisTaskResponse;
 import com.aliyun.sdk.service.quanmiaolightapp20240801.models.SubmitVideoAnalysisTaskRequest;
 import com.aliyun.sdk.service.quanmiaolightapp20240801.models.SubmitVideoAnalysisTaskResponse;
 import com.google.gson.Gson;
@@ -327,6 +329,139 @@ public class AliyunVideoAnalysisService {
 
         /**
          * 分析失败回调
+         * @param throwable 异常信息
+         */
+        void onError(Throwable throwable);
+    }
+
+    /**
+     * 获取视频分析任务结果
+     * @param taskId 任务ID
+     * @return GetVideoAnalysisTaskResponse 任务结果响应
+     */
+    public GetVideoAnalysisTaskResponse getVideoAnalysisTask(String taskId) {
+        AsyncClient client = null;
+        try {
+            log.info("开始查询视频分析任务结果，taskId：{}", taskId);
+            
+            // 创建客户端
+            client = createAliyunClient();
+
+            // API请求参数设置
+            GetVideoAnalysisTaskRequest getVideoAnalysisTaskRequest = GetVideoAnalysisTaskRequest.builder()
+                    .taskId(taskId)
+                    .workspaceId(workspaceId)
+                    // 请求级别配置重写，可以设置Http请求参数等
+                    // .requestConfiguration(RequestConfiguration.create().setHttpHeaders(new HttpHeaders()))
+                    .build();
+
+            // 异步获取API请求的返回值
+            CompletableFuture<GetVideoAnalysisTaskResponse> responseFuture = client.getVideoAnalysisTask(getVideoAnalysisTaskRequest);
+            
+            // 同步获取API请求的返回值
+            GetVideoAnalysisTaskResponse response = responseFuture.get();
+            
+            log.info("视频分析任务查询成功，taskId：{}，状态：{}", taskId, response.getBody().getData().getTaskStatus());
+            log.debug("任务查询响应详情：{}", new Gson().toJson(response));
+            
+            return response;
+            
+        } catch (Exception e) {
+            log.error("查询视频分析任务失败，taskId：{}，错误：{}", taskId, e.getMessage(), e);
+            throw new RuntimeException("查询视频分析任务失败", e);
+        } finally {
+            // 最后关闭客户端
+            if (client != null) {
+                try {
+                    client.close();
+                } catch (Exception e) {
+                    log.warn("关闭阿里云客户端时发生异常：{}", e.getMessage());
+                }
+            }
+        }
+    }
+
+    /**
+     * 异步查询视频分析任务结果
+     * @param taskId 任务ID
+     * @param callback 异步回调处理
+     */
+    public void getVideoAnalysisTaskAsync(String taskId, VideoAnalysisResultCallback callback) {
+        AsyncClient client = null;
+        try {
+            log.info("开始异步查询视频分析任务结果，taskId：{}", taskId);
+            
+            // 创建客户端
+            client = createAliyunClient();
+
+            // API请求参数设置
+            GetVideoAnalysisTaskRequest getVideoAnalysisTaskRequest = GetVideoAnalysisTaskRequest.builder()
+                    .taskId(taskId)
+                    .workspaceId(workspaceId)
+                    .build();
+
+            // 异步获取API请求的返回值
+            CompletableFuture<GetVideoAnalysisTaskResponse> responseFuture = client.getVideoAnalysisTask(getVideoAnalysisTaskRequest);
+            
+            final AsyncClient finalClient = client;
+            
+            // 异步处理返回值
+            responseFuture.thenAccept(response -> {
+                try {
+                    log.info("异步查询视频分析任务成功，taskId：{}，状态：{}", taskId, response.getBody().getData().getTaskStatus());
+                    callback.onSuccess(response);
+                } catch (Exception e) {
+                    log.error("处理异步查询成功回调时发生异常：{}", e.getMessage(), e);
+                    callback.onError(e);
+                } finally {
+                    // 关闭客户端
+                    try {
+                        finalClient.close();
+                    } catch (Exception e) {
+                        log.warn("关闭阿里云客户端时发生异常：{}", e.getMessage());
+                    }
+                }
+            }).exceptionally(throwable -> {
+                try {
+                    log.error("异步查询视频分析任务失败：{}", throwable.getMessage(), throwable);
+                    callback.onError(throwable);
+                } finally {
+                    // 关闭客户端
+                    try {
+                        finalClient.close();
+                    } catch (Exception e) {
+                        log.warn("关闭阿里云客户端时发生异常：{}", e.getMessage());
+                    }
+                }
+                return null;
+            });
+            
+        } catch (Exception e) {
+            log.error("异步查询视频分析任务失败，taskId：{}，错误：{}", taskId, e.getMessage(), e);
+            callback.onError(e);
+            // 如果在创建过程中出现异常，需要关闭客户端
+            if (client != null) {
+                try {
+                    client.close();
+                } catch (Exception closeException) {
+                    log.warn("关闭阿里云客户端时发生异常：{}", closeException.getMessage());
+                }
+            }
+        }
+    }
+
+    /**
+     * 视频分析结果查询回调接口
+     */
+    public interface VideoAnalysisResultCallback {
+        /**
+         * 查询成功回调
+         * @param response 查询响应结果
+         */
+        void onSuccess(GetVideoAnalysisTaskResponse response);
+
+        /**
+         * 查询失败回调
          * @param throwable 异常信息
          */
         void onError(Throwable throwable);

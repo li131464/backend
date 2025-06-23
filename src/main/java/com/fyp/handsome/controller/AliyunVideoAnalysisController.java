@@ -7,8 +7,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.aliyun.sdk.service.quanmiaolightapp20240801.models.GetVideoAnalysisTaskResponse;
 import com.aliyun.sdk.service.quanmiaolightapp20240801.models.SubmitVideoAnalysisTaskResponse;
 import com.fyp.handsome.dto.Result;
 import com.fyp.handsome.service.impl.analysis.AliyunVideoAnalysisService;
@@ -27,6 +29,7 @@ public class AliyunVideoAnalysisController {
 
     @Autowired
     private AliyunVideoAnalysisService aliyunVideoAnalysisService;
+    
     /**
      * 提交视频分析任务（异步）
      * @param request 视频分析请求
@@ -68,6 +71,65 @@ public class AliyunVideoAnalysisController {
             return Result.error("提交异步视频分析任务失败：" + e.getMessage());
         }
     }
+
+    /**
+     * 查询视频分析任务结果
+     * @param taskId 任务ID
+     * @return Result<GetVideoAnalysisTaskResponse> 任务结果
+     */
+    @GetMapping("/task")
+    public Result<GetVideoAnalysisTaskResponse> getVideoAnalysisTask(@RequestParam String taskId) {
+        try {
+            log.info("收到查询视频分析任务请求，taskId：{}", taskId);
+            
+            // 验证请求参数
+            if (taskId == null || taskId.trim().isEmpty()) {
+                return Result.error("任务ID不能为空");
+            }
+            
+            // 查询任务结果
+            GetVideoAnalysisTaskResponse response = aliyunVideoAnalysisService.getVideoAnalysisTask(taskId.trim());
+            
+            log.info("查询视频分析任务成功，taskId：{}，状态：{}", taskId, response.getBody().getData().getTaskStatus());
+            return Result.success("查询视频分析任务成功", response);
+            
+        } catch (Exception e) {
+            log.error("查询视频分析任务失败，taskId：{}，错误：{}", taskId, e.getMessage(), e);
+            return Result.error("查询视频分析任务失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 查询视频分析任务结果（POST方式）
+     * @param request 查询请求
+     * @return Result<GetVideoAnalysisTaskResponse> 任务结果
+     */
+    @PostMapping("/task/query")
+    public Result<GetVideoAnalysisTaskResponse> queryVideoAnalysisTask(@RequestBody TaskQueryRequest request) {
+        try {
+            log.info("收到查询视频分析任务请求，taskId：{}", request.getTaskId());
+            
+            // 验证请求参数
+            if (request.getTaskId() == null || request.getTaskId().trim().isEmpty()) {
+                return Result.error("任务ID不能为空");
+            }
+            
+            // 查询任务结果
+            GetVideoAnalysisTaskResponse response = aliyunVideoAnalysisService.getVideoAnalysisTask(request.getTaskId().trim());
+            
+            log.info("查询视频分析任务成功，taskId：{}，状态：{}", request.getTaskId(), response.getBody().getData().getTaskStatus());
+            return Result.success("查询视频分析任务成功", response);
+            
+        } catch (Exception e) {
+            log.error("查询视频分析任务失败，taskId：{}，错误：{}", request.getTaskId(), e.getMessage(), e);
+            return Result.error("查询视频分析任务失败：" + e.getMessage());
+        }
+    }
+
+    /**
+     * 获取配置信息
+     * @return Result<Map<String, String>> 阿里云配置信息
+     */
     @GetMapping("/config")
     public Result<Map<String, String>> getConfig() {
         try {
@@ -115,6 +177,32 @@ public class AliyunVideoAnalysisController {
             return "VideoAnalysisRequest{" +
                     "videoUrl='" + videoUrl + '\'' +
                     ", customPromptTemplate='" + (customPromptTemplate != null ? "已设置" : "未设置") + '\'' +
+                    '}';
+        }
+    }
+
+    /**
+     * 任务查询请求DTO
+     */
+    public static class TaskQueryRequest {
+        /**
+         * 任务ID
+         */
+        private String taskId;
+
+        // Getter和Setter方法
+        public String getTaskId() {
+            return taskId;
+        }
+
+        public void setTaskId(String taskId) {
+            this.taskId = taskId;
+        }
+
+        @Override
+        public String toString() {
+            return "TaskQueryRequest{" +
+                    "taskId='" + taskId + '\'' +
                     '}';
         }
     }
