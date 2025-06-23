@@ -227,7 +227,18 @@ public class UserManagementServiceImpl extends ServiceImpl<UserMapper, User> {
                 wrapper.eq(User::getStatus, status);
             }
             
-            return page(page, wrapper);
+            // 手动计算总数以修复分页总数为0的问题
+            long totalCount = count(wrapper);
+            
+            // 执行分页查询
+            IPage<User> result = page(page, wrapper);
+            
+            // 如果分页结果的总数为0，则手动设置总数
+            if (result.getTotal() == 0 && totalCount > 0) {
+                result.setTotal(totalCount);
+            }
+            
+            return result;
         } catch (Exception e) {
             log.error("分页查询用户失败，错误：{}", e.getMessage(), e);
             return new Page<>();
@@ -298,7 +309,18 @@ public class UserManagementServiceImpl extends ServiceImpl<UserMapper, User> {
                 wrapper.eq(Role::getStatus, status);
             }
             
-            return roleMapper.selectPage(page, wrapper);
+            // 手动计算总数以修复分页总数为0的问题
+            long totalCount = roleMapper.selectCount(wrapper);
+            
+            // 执行分页查询
+            IPage<Role> result = roleMapper.selectPage(page, wrapper);
+            
+            // 如果分页结果的总数为0，则手动设置总数
+            if (result.getTotal() == 0 && totalCount > 0) {
+                result.setTotal(totalCount);
+            }
+            
+            return result;
         } catch (Exception e) {
             log.error("分页查询角色失败，错误：{}", e.getMessage(), e);
             return new Page<>();
@@ -364,7 +386,18 @@ public class UserManagementServiceImpl extends ServiceImpl<UserMapper, User> {
                 wrapper.eq(Permission::getStatus, status);
             }
             
-            return permissionMapper.selectPage(page, wrapper);
+            // 手动计算总数以修复分页总数为0的问题
+            long totalCount = permissionMapper.selectCount(wrapper);
+            
+            // 执行分页查询
+            IPage<Permission> result = permissionMapper.selectPage(page, wrapper);
+            
+            // 如果分页结果的总数为0，则手动设置总数
+            if (result.getTotal() == 0 && totalCount > 0) {
+                result.setTotal(totalCount);
+            }
+            
+            return result;
         } catch (Exception e) {
             log.error("分页查询权限失败，错误：{}", e.getMessage(), e);
             return new Page<>();
