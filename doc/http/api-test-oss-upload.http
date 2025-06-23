@@ -1,0 +1,127 @@
+### OSS文件上传测试接口
+### 用于测试阿里云OSS文件上传功能
+### 注意：确保服务已启动且环境变量配置正确
+
+### 1. 测试视频上传 - 上传到ob/文件夹
+POST http://localhost:8190/api/oss/upload/video
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="videoFile"; filename="elevator_test.mp4"
+Content-Type: video/mp4
+
+< ./src/main/resources/video/elevator_1.mp4
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+### 2. 测试视频上传 - 街道视频
+POST http://localhost:8190/api/oss/upload/video
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="videoFile"; filename="street_test.mp4"
+Content-Type: video/mp4
+
+< ./src/main/resources/video/street_1.mp4
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+### 3. 测试通用文件上传 - 指定文件夹
+POST http://localhost:8190/api/oss/upload/file
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="custom_video.mp4"
+Content-Type: video/mp4
+
+< ./src/main/resources/video/elevator_1.mp4
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="folder"
+
+custom/videos/
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+### 4. 测试通用文件上传 - 默认根目录
+POST http://localhost:8190/api/oss/upload/file
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="root_video.mp4"
+Content-Type: video/mp4
+
+< ./src/main/resources/video/street_1.mp4
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+### 5. 测试文件删除 - 请替换为实际的文件URL
+DELETE http://localhost:8190/api/oss/delete
+Content-Type: application/json
+
+{
+  "fileUrl": "https://ziyeimg.oss-cn-shanghai.aliyuncs.com/ob/ob_20241228_161234_abcd1234_elevator_test.mp4"
+}
+
+###
+
+### 6. 测试文件是否存在 - 请替换为实际的文件URL
+GET http://localhost:8190/api/oss/exists?fileUrl=https://ziyeimg.oss-cn-shanghai.aliyuncs.com/ob/ob_20241228_161234_abcd1234_elevator_test.mp4
+
+###
+
+### 7. 测试文件是否存在 - 不存在的文件
+GET http://localhost:8190/api/oss/exists?fileUrl=https://ziyeimg.oss-cn-shanghai.aliyuncs.com/ob/non_existent_file.mp4
+
+###
+
+### 8. 测试上传非视频文件到视频接口（应该失败）
+POST http://localhost:8190/api/oss/upload/video
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="videoFile"; filename="test.txt"
+Content-Type: text/plain
+
+This is a test file, not a video.
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+
+###
+
+### 测试说明：
+### 1. 上传成功后，会返回文件的OSS访问URL
+### 2. 视频文件会自动存储到ob/文件夹下
+### 3. 文件名会包含时间戳和UUID确保唯一性
+### 4. 支持的视频格式：mp4, avi, mov, wmv, flv, webm, mkv, m4v, 3gp
+### 5. 删除和检查文件时需要使用完整的OSS URL
+
+### 示例响应格式：
+### 上传成功响应：
+# {
+#   "code": 200,
+#   "message": "视频上传成功",
+#   "data": {
+#     "fileUrl": "https://ziyeimg.oss-cn-shanghai.aliyuncs.com/ob/ob_20241228_161234_abcd1234_elevator_test.mp4",
+#     "originalFilename": "elevator_test.mp4",
+#     "fileSize": "1024000"
+#   }
+# }
+
+### 文件存在检查响应：
+# {
+#   "code": 200,
+#   "message": "检查完成",
+#   "data": {
+#     "exists": true,
+#     "fileUrl": "https://ziyeimg.oss-cn-shanghai.aliyuncs.com/ob/ob_20241228_161234_abcd1234_elevator_test.mp4"
+#   }
+# } 
