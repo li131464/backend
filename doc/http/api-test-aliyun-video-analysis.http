@@ -1,0 +1,19 @@
+### ✅5. 提交视频分析任务（异步）- 现在返回taskId在data字段中
+### 返回格式：
+### {
+###   "code": 200,
+###   "message": "异步视频分析任务提交成功",
+###   "data": {
+###     "taskId": "ce6a4ad199eb4b309ae0310e3e41cf42",
+###     "videoUrl": "https://xxx.mp4",
+###     "status": "submitted",
+###     "message": "异步视频分析任务已提交成功",
+###     "submitTime": 1703123456789
+###   }
+### }
+POST http://localhost:8190/api/aliyun/video-analysis/submit-async
+Content-Type: application/json
+
+{
+    "videoUrl": "https://ziyeimg.oss-cn-shanghai.aliyuncs.com/ob/%E5%BE%AE%E4%BF%A1%E8%A7%86%E9%A2%912025-06-23_164747_137.mp4"
+}

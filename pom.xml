@@ -62,6 +62,13 @@
 			<artifactId>spring-security-crypto</artifactId>
 		</dependency>
 
+		<!-- 阿里云全貌轻应用SDK -->
+		<dependency>
+			<groupId>com.aliyun</groupId>
+			<artifactId>alibabacloud-quanmiaolightapp20240801</artifactId>
+			<version>2.0.20</version>
+		</dependency>
+
 		<!-- MySQL 驱动 -->
 		<dependency>
 			<groupId>com.mysql</groupId>
