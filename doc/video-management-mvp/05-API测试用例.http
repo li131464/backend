@@ -1,9 +1,9 @@
 ### 视频信息管理MVP - API测试用例
 ### 基础URL配置
-@baseUrl = http://localhost:8091
+@baseUrl = http://localhost:8190
 @apiPrefix = /api/v1/videos
 
-### 1. 创建视频信息 - 正常流程
+### ✅1. 创建视频信息 - 正常流程
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -17,7 +17,7 @@ Content-Type: application/json
     "duration": 3600
 }
 
-### 2. 创建视频信息 - 最少必填字段
+### ✅2. 创建视频信息 - 最少必填字段
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -28,7 +28,7 @@ Content-Type: application/json
     "videoSource": "监控摄像头_003"
 }
 
-### 3. 创建视频信息 - 参数校验失败（缺少必填字段）
+### ✅3. 创建视频信息 - 参数校验失败（缺少必填字段）
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -38,7 +38,7 @@ Content-Type: application/json
     "videoSource": "监控摄像头_002"
 }
 
-### 4. 创建视频信息 - 参数校验失败（拍摄时间超过当前时间）
+### ✅4. 创建视频信息 - 参数校验失败（拍摄时间超过当前时间）
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -49,7 +49,7 @@ Content-Type: application/json
     "videoSource": "监控摄像头_004"
 }
 
-### 5. 创建视频信息 - 重复视频名称
+### ✅5. 创建视频信息 - 重复视频名称
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -60,43 +60,43 @@ Content-Type: application/json
     "videoSource": "监控摄像头_005"
 }
 
-### 6. 分页查询视频信息 - 默认分页
+### ✅6. 分页查询视频信息 - 默认分页
 GET {{baseUrl}}{{apiPrefix}}
 
-### 7. 分页查询视频信息 - 指定分页参数
+### ✅7. 分页查询视频信息 - 指定分页参数
 GET {{baseUrl}}{{apiPrefix}}?page=1&size=5
 
-### 8. 分页查询视频信息 - 按视频名称模糊查询
+### ✅8. 分页查询视频信息 - 按视频名称模糊查询
 GET {{baseUrl}}{{apiPrefix}}?videoName=大厅
 
-### 9. 分页查询视频信息 - 按拍摄地点模糊查询
+### ✅9. 分页查询视频信息 - 按拍摄地点模糊查询
 GET {{baseUrl}}{{apiPrefix}}?shootingLocation=办公
 
-### 10. 分页查询视频信息 - 按视频来源查询
+### ✅10. 分页查询视频信息 - 按视频来源查询
 GET {{baseUrl}}{{apiPrefix}}?videoSource=监控摄像头_001
 
-### 11. 分页查询视频信息 - 按时间范围查询
+### ✅11. 分页查询视频信息 - 按时间范围查询
 GET {{baseUrl}}{{apiPrefix}}?startTime=2024-12-01T00:00:00&endTime=2024-12-31T23:59:59
 
-### 12. 分页查询视频信息 - 组合条件查询
+### ✅12. 分页查询视频信息 - 组合条件查询
 GET {{baseUrl}}{{apiPrefix}}?page=1&size=10&videoName=监控&shootingLocation=办公&startTime=2024-12-01T00:00:00&endTime=2024-12-31T23:59:59
 
-### 13. 分页查询视频信息 - 分页参数校验（页码为0）
+### ✅13. 分页查询视频信息 - 分页参数校验（页码为0）
 GET {{baseUrl}}{{apiPrefix}}?page=0&size=10
 
-### 14. 分页查询视频信息 - 分页参数校验（每页大小超过限制）
+### ✅14. 分页查询视频信息 - 分页参数校验（每页大小超过限制）
 GET {{baseUrl}}{{apiPrefix}}?page=1&size=101
 
-### 15. 根据ID查询视频信息 - 存在的ID
+### ✅15. 根据ID查询视频信息 - 存在的ID
 GET {{baseUrl}}{{apiPrefix}}/1
 
-### 16. 根据ID查询视频信息 - 不存在的ID
+### ✅16. 根据ID查询视频信息 - 不存在的ID
 GET {{baseUrl}}{{apiPrefix}}/999
 
-### 17. 根据ID查询视频信息 - 无效的ID格式
+### ✅17. 根据ID查询视频信息 - 无效的ID格式
 GET {{baseUrl}}{{apiPrefix}}/abc
 
-### 18. 更新视频信息 - 完整更新
+### ✅18. 更新视频信息 - 完整更新
 PUT {{baseUrl}}{{apiPrefix}}/1
 Content-Type: application/json
 
@@ -110,7 +110,7 @@ Content-Type: application/json
     "duration": 3900
 }
 
-### 19. 更新视频信息 - 部分字段更新
+### ✅19. 更新视频信息 - 部分字段更新
 PUT {{baseUrl}}{{apiPrefix}}/2
 Content-Type: application/json
 
@@ -119,7 +119,7 @@ Content-Type: application/json
     "filePath": "/videos/2024/12/01/elevator_001_v2.mp4"
 }
 
-### 20. 更新视频信息 - 修改为重复的视频名称
+### ✅20. 更新视频信息 - 修改为重复的视频名称
 PUT {{baseUrl}}{{apiPrefix}}/2
 Content-Type: application/json
 
@@ -127,7 +127,7 @@ Content-Type: application/json
     "videoName": "办公大厅监控_20241201_001_修改"
 }
 
-### 21. 更新视频信息 - 不存在的ID
+### ✅21. 更新视频信息 - 不存在的ID
 PUT {{baseUrl}}{{apiPrefix}}/999
 Content-Type: application/json
 
@@ -135,7 +135,7 @@ Content-Type: application/json
     "videoName": "不存在的视频"
 }
 
-### 22. 更新视频信息 - 参数校验失败（拍摄时间超过当前时间）
+### ✅22. 更新视频信息 - 参数校验失败（拍摄时间超过当前时间）
 PUT {{baseUrl}}{{apiPrefix}}/1
 Content-Type: application/json
 
@@ -143,7 +143,7 @@ Content-Type: application/json
     "shootingTime": "2025-12-01T08:00:00"
 }
 
-### 23. 更新视频信息 - 参数校验失败（负数值）
+### ✅23. 更新视频信息 - 参数校验失败（负数值）
 PUT {{baseUrl}}{{apiPrefix}}/1
 Content-Type: application/json
 
@@ -152,25 +152,25 @@ Content-Type: application/json
     "duration": -60
 }
 
-### 24. 删除视频信息 - 存在的ID
+### ✅24. 删除视频信息 - 存在的ID
 DELETE {{baseUrl}}{{apiPrefix}}/1
 
-### 25. 删除视频信息 - 不存在的ID
+### ✅25. 删除视频信息 - 不存在的ID
 DELETE {{baseUrl}}{{apiPrefix}}/999
 
-### 26. 删除视频信息 - 无效的ID格式
+### ✅26. 删除视频信息 - 无效的ID格式
 DELETE {{baseUrl}}{{apiPrefix}}/abc
 
-### 27. 删除视频信息 - 已删除的记录
+### ✅27. 删除视频信息 - 已删除的记录
 DELETE {{baseUrl}}{{apiPrefix}}/1
 
-### 28. 验证逻辑删除 - 查询已删除的记录不应出现在列表中
+### ✅28. 验证逻辑删除 - 查询已删除的记录不应出现在列表中
 GET {{baseUrl}}{{apiPrefix}}
 
-### 29. 验证逻辑删除 - 直接查询已删除的记录
+### ✅29. 验证逻辑删除 - 直接查询已删除的记录
 GET {{baseUrl}}{{apiPrefix}}/1
 
-### 30. 批量创建测试数据
+### ✅30. 批量创建测试数据
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -184,7 +184,7 @@ Content-Type: application/json
     "duration": 3600
 }
 
-###
+### ✅
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -198,7 +198,7 @@ Content-Type: application/json
     "duration": 1800
 }
 
-###
+### ✅
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -210,7 +210,7 @@ Content-Type: application/json
     "duration": 7200
 }
 
-### 31. 边界值测试 - 最大长度的字符串
+### ✅31. 边界值测试 - 最大长度的字符串
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -221,7 +221,7 @@ Content-Type: application/json
     "videoSource": "测试视频来源_这是一个用于测试系统对于视频来源字段最大长度支持的测试用例包含了中英文混合字符以及数字和特殊符号的组合用于验证系统在处理长字符串时的稳定性和可靠性确保数据的完整性和一致性_TEST_SOURCE_12345"
 }
 
-### 32. 边界值测试 - 最大数值
+### ✅32. 边界值测试 - 最大数值
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -234,7 +234,7 @@ Content-Type: application/json
     "duration": 2147483647
 }
 
-### 33. 边界值测试 - 最小有效日期
+### ✅33. 边界值测试 - 最小有效日期
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -245,10 +245,10 @@ Content-Type: application/json
     "videoSource": "历史测试来源"
 }
 
-### 34. 性能测试 - 分页查询大页面
+### ✅34. 性能测试 - 分页查询大页面
 GET {{baseUrl}}{{apiPrefix}}?page=1&size=100
 
-### 35. 特殊字符测试 - 包含特殊字符的视频名称
+### ✅35. 特殊字符测试 - 包含特殊字符的视频名称
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -259,7 +259,7 @@ Content-Type: application/json
     "videoSource": "特殊字符来源_测试SQL注入'; DROP TABLE video_info; --"
 }
 
-### 36. Unicode字符测试 - 各种语言字符
+### ✅36. Unicode字符测试 - 各种语言字符
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -270,7 +270,7 @@ Content-Type: application/json
     "videoSource": "Unicode测试来源_💻🔍📊📈"
 }
 
-### 37. 并发测试准备 - 创建用于并发测试的数据
+### ✅37. 并发测试准备 - 创建用于并发测试的数据
 POST {{baseUrl}}{{apiPrefix}}
 Content-Type: application/json
 
@@ -281,11 +281,11 @@ Content-Type: application/json
     "videoSource": "并发测试来源"
 }
 
-### 38. 数据清理 - 查看所有数据（测试完成后）
+### ✅38. 数据清理 - 查看所有数据（测试完成后）
 GET {{baseUrl}}{{apiPrefix}}?page=1&size=50
 
-### 39. 查询统计信息测试 - 验证分页总数
+### ✅39. 查询统计信息测试 - 验证分页总数
 GET {{baseUrl}}{{apiPrefix}}?page=1&size=1
 
-### 40. 空结果测试 - 查询不存在的条件组合
+### ✅40. 空结果测试 - 查询不存在的条件组合
 GET {{baseUrl}}{{apiPrefix}}?videoName=不存在的视频&shootingLocation=不存在的地点&videoSource=不存在的来源 
