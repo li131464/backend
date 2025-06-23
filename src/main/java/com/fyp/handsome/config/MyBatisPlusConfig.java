@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 
 import com.baomidou.mybatisplus.core.handlers.MetaObjectHandler;
 
+
 /**
  * MyBatis Plus 配置类
  * @author ziye
