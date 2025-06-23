@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### 环境变量文件 ###
+.env
+.env.local
+.env.development
+.env.production
+
+### 敏感配置文件 ###
+**/application-*.yml
+!**/application.yml
