@@ -1,0 +1,291 @@
+### 视频信息管理MVP - API测试用例
+### 基础URL配置
+@baseUrl = http://localhost:8091
+@apiPrefix = /api/v1/videos
+
+### 1. 创建视频信息 - 正常流程
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "办公大厅监控_20241201_001",
+    "shootingTime": "2024-12-01T08:00:00",
+    "shootingLocation": "办公大厅",
+    "videoSource": "监控摄像头_001",
+    "filePath": "/videos/2024/12/01/hall_001.mp4",
+    "fileSize": 1024000,
+    "duration": 3600
+}
+
+### 2. 创建视频信息 - 最少必填字段
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "电梯监控_20241201_001",
+    "shootingTime": "2024-12-01T09:00:00",
+    "shootingLocation": "1号电梯内",
+    "videoSource": "监控摄像头_003"
+}
+
+### 3. 创建视频信息 - 参数校验失败（缺少必填字段）
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "",
+    "shootingLocation": "停车场",
+    "videoSource": "监控摄像头_002"
+}
+
+### 4. 创建视频信息 - 参数校验失败（拍摄时间超过当前时间）
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "未来监控_20251201_001",
+    "shootingTime": "2025-12-01T08:00:00",
+    "shootingLocation": "会议室",
+    "videoSource": "监控摄像头_004"
+}
+
+### 5. 创建视频信息 - 重复视频名称
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "办公大厅监控_20241201_001",
+    "shootingTime": "2024-12-01T10:00:00",
+    "shootingLocation": "办公大厅二楼",
+    "videoSource": "监控摄像头_005"
+}
+
+### 6. 分页查询视频信息 - 默认分页
+GET {{baseUrl}}{{apiPrefix}}
+
+### 7. 分页查询视频信息 - 指定分页参数
+GET {{baseUrl}}{{apiPrefix}}?page=1&size=5
+
+### 8. 分页查询视频信息 - 按视频名称模糊查询
+GET {{baseUrl}}{{apiPrefix}}?videoName=大厅
+
+### 9. 分页查询视频信息 - 按拍摄地点模糊查询
+GET {{baseUrl}}{{apiPrefix}}?shootingLocation=办公
+
+### 10. 分页查询视频信息 - 按视频来源查询
+GET {{baseUrl}}{{apiPrefix}}?videoSource=监控摄像头_001
+
+### 11. 分页查询视频信息 - 按时间范围查询
+GET {{baseUrl}}{{apiPrefix}}?startTime=2024-12-01T00:00:00&endTime=2024-12-31T23:59:59
+
+### 12. 分页查询视频信息 - 组合条件查询
+GET {{baseUrl}}{{apiPrefix}}?page=1&size=10&videoName=监控&shootingLocation=办公&startTime=2024-12-01T00:00:00&endTime=2024-12-31T23:59:59
+
+### 13. 分页查询视频信息 - 分页参数校验（页码为0）
+GET {{baseUrl}}{{apiPrefix}}?page=0&size=10
+
+### 14. 分页查询视频信息 - 分页参数校验（每页大小超过限制）
+GET {{baseUrl}}{{apiPrefix}}?page=1&size=101
+
+### 15. 根据ID查询视频信息 - 存在的ID
+GET {{baseUrl}}{{apiPrefix}}/1
+
+### 16. 根据ID查询视频信息 - 不存在的ID
+GET {{baseUrl}}{{apiPrefix}}/999
+
+### 17. 根据ID查询视频信息 - 无效的ID格式
+GET {{baseUrl}}{{apiPrefix}}/abc
+
+### 18. 更新视频信息 - 完整更新
+PUT {{baseUrl}}{{apiPrefix}}/1
+Content-Type: application/json
+
+{
+    "videoName": "办公大厅监控_20241201_001_修改",
+    "shootingTime": "2024-12-01T08:00:00",
+    "shootingLocation": "办公大厅一楼",
+    "videoSource": "监控摄像头_001_新",
+    "filePath": "/videos/2024/12/01/hall_001_updated.mp4",
+    "fileSize": 1536000,
+    "duration": 3900
+}
+
+### 19. 更新视频信息 - 部分字段更新
+PUT {{baseUrl}}{{apiPrefix}}/2
+Content-Type: application/json
+
+{
+    "shootingLocation": "1号电梯内部",
+    "filePath": "/videos/2024/12/01/elevator_001_v2.mp4"
+}
+
+### 20. 更新视频信息 - 修改为重复的视频名称
+PUT {{baseUrl}}{{apiPrefix}}/2
+Content-Type: application/json
+
+{
+    "videoName": "办公大厅监控_20241201_001_修改"
+}
+
+### 21. 更新视频信息 - 不存在的ID
+PUT {{baseUrl}}{{apiPrefix}}/999
+Content-Type: application/json
+
+{
+    "videoName": "不存在的视频"
+}
+
+### 22. 更新视频信息 - 参数校验失败（拍摄时间超过当前时间）
+PUT {{baseUrl}}{{apiPrefix}}/1
+Content-Type: application/json
+
+{
+    "shootingTime": "2025-12-01T08:00:00"
+}
+
+### 23. 更新视频信息 - 参数校验失败（负数值）
+PUT {{baseUrl}}{{apiPrefix}}/1
+Content-Type: application/json
+
+{
+    "fileSize": -1000,
+    "duration": -60
+}
+
+### 24. 删除视频信息 - 存在的ID
+DELETE {{baseUrl}}{{apiPrefix}}/1
+
+### 25. 删除视频信息 - 不存在的ID
+DELETE {{baseUrl}}{{apiPrefix}}/999
+
+### 26. 删除视频信息 - 无效的ID格式
+DELETE {{baseUrl}}{{apiPrefix}}/abc
+
+### 27. 删除视频信息 - 已删除的记录
+DELETE {{baseUrl}}{{apiPrefix}}/1
+
+### 28. 验证逻辑删除 - 查询已删除的记录不应出现在列表中
+GET {{baseUrl}}{{apiPrefix}}
+
+### 29. 验证逻辑删除 - 直接查询已删除的记录
+GET {{baseUrl}}{{apiPrefix}}/1
+
+### 30. 批量创建测试数据
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "停车场监控_20241201_001",
+    "shootingTime": "2024-12-01T08:00:00",
+    "shootingLocation": "地下停车场B1",
+    "videoSource": "监控摄像头_002",
+    "filePath": "/videos/2024/12/01/parking_001.mp4",
+    "fileSize": 2048000,
+    "duration": 3600
+}
+
+###
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "会议室监控_20241201_001",
+    "shootingTime": "2024-12-01T09:30:00",
+    "shootingLocation": "301会议室",
+    "videoSource": "监控摄像头_006",
+    "filePath": "/videos/2024/12/01/meeting_001.mp4",
+    "fileSize": 512000,
+    "duration": 1800
+}
+
+###
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "走廊监控_20241201_001",
+    "shootingTime": "2024-12-01T10:15:00",
+    "shootingLocation": "三楼走廊",
+    "videoSource": "监控摄像头_007",
+    "duration": 7200
+}
+
+### 31. 边界值测试 - 最大长度的字符串
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "最大长度视频名称测试_这是一个非常长的视频名称用于测试系统对于最大长度字符串的处理能力包括中文字符和英文字符的混合使用场景以及各种特殊符号的支持情况希望能够覆盖到边界值测试的要求并且确保系统的稳定性和可靠性在各种极端情况下都能够正常工作_1234567890",
+    "shootingTime": "2024-12-01T11:00:00",
+    "shootingLocation": "测试地点_这里是一个用于测试最大长度的拍摄地点描述包含了各种可能的字符类型和长度边界值测试场景用于验证系统对于长字符串的处理能力和存储能力确保在极限情况下系统依然能够正常工作并且不会出现数据截断或者其他异常情况",
+    "videoSource": "测试视频来源_这是一个用于测试系统对于视频来源字段最大长度支持的测试用例包含了中英文混合字符以及数字和特殊符号的组合用于验证系统在处理长字符串时的稳定性和可靠性确保数据的完整性和一致性_TEST_SOURCE_12345"
+}
+
+### 32. 边界值测试 - 最大数值
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "数值边界测试_20241201_001",
+    "shootingTime": "2024-12-01T12:00:00",
+    "shootingLocation": "数值测试地点",
+    "videoSource": "数值测试来源",
+    "fileSize": 9223372036854775807,
+    "duration": 2147483647
+}
+
+### 33. 边界值测试 - 最小有效日期
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "最早日期测试_19700101_001",
+    "shootingTime": "1970-01-01T00:00:01",
+    "shootingLocation": "历史测试地点",
+    "videoSource": "历史测试来源"
+}
+
+### 34. 性能测试 - 分页查询大页面
+GET {{baseUrl}}{{apiPrefix}}?page=1&size=100
+
+### 35. 特殊字符测试 - 包含特殊字符的视频名称
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "特殊字符测试_!@#$%^&*()_+-=[]{}|;':\",./<>?~`",
+    "shootingTime": "2024-12-01T13:00:00",
+    "shootingLocation": "特殊字符地点_测试<script>alert('XSS')</script>",
+    "videoSource": "特殊字符来源_测试SQL注入'; DROP TABLE video_info; --"
+}
+
+### 36. Unicode字符测试 - 各种语言字符
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "多语言测试_中文_English_日本語_한국어_العربية_русский_Español",
+    "shootingTime": "2024-12-01T14:00:00",
+    "shootingLocation": "国际化测试地点_🏢🎥📹🌍",
+    "videoSource": "Unicode测试来源_💻🔍📊📈"
+}
+
+### 37. 并发测试准备 - 创建用于并发测试的数据
+POST {{baseUrl}}{{apiPrefix}}
+Content-Type: application/json
+
+{
+    "videoName": "并发测试_准备数据_001",
+    "shootingTime": "2024-12-01T15:00:00",
+    "shootingLocation": "并发测试地点",
+    "videoSource": "并发测试来源"
+}
+
+### 38. 数据清理 - 查看所有数据（测试完成后）
+GET {{baseUrl}}{{apiPrefix}}?page=1&size=50
+
+### 39. 查询统计信息测试 - 验证分页总数
+GET {{baseUrl}}{{apiPrefix}}?page=1&size=1
+
+### 40. 空结果测试 - 查询不存在的条件组合
+GET {{baseUrl}}{{apiPrefix}}?videoName=不存在的视频&shootingLocation=不存在的地点&videoSource=不存在的来源 
