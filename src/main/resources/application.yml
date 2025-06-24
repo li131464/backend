@@ -3,6 +3,13 @@ spring:
     name: handsome
   profiles:
     active: dev
+  # 文件上传配置
+  servlet:
+    multipart:
+      # 单个文件最大大小（设置为500MB）
+      max-file-size: 500MB
+      # 整个请求最大大小（设置为500MB）
+      max-request-size: 500MB
 
 server:
   port: 8190

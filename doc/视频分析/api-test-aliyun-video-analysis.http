@@ -13,3 +13,20 @@ Content-Type: application/json
 {
     "taskId": "a623fa8f19ab4afab6a5b263f5bc74fc"
 }
+
+### ================== 视频分析结果数据库查询接口 ==================
+
+### ✅ 查询指定视频的分析结果（通过VideoMvpController）
+GET http://localhost:8190/api/v1/videos/16/analysis-result
+
+### ✅ 根据视频ID查询所有分析结果
+GET http://localhost:8190/api/video-analysis/video/17
+
+### ✅ 分页查询分析结果（支持条件筛选）
+GET http://localhost:8190/api/video-analysis/page?current=1&size=10&videoId=1
+
+### ✅ 查询最新的分析结果
+GET http://localhost:8190/api/video-analysis/latest?limit=5
+
+### ✅ 获取分析统计概览
+GET http://localhost:8190/api/video-analysis/statistics
