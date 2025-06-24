@@ -1,0 +1,35 @@
+### 测试视频创建接口 - 带filePath字段（自动触发视频分析）
+POST http://localhost:8190/api/v1/videos
+Content-Type: application/json
+
+{
+    "videoName": "测试视频_自动分析",
+    "shootingTime": "2024-01-15T10:30:00",
+    "shootingLocation": "北京市朝阳区",
+    "videoSource": "监控摄像头01",
+    "filePath": "https://ziyeimg.oss-cn-shanghai.aliyuncs.com/ob/%E5%BE%AE%E4%BF%A1%E8%A7%86%E9%A2%912025-06-23_164747_137.mp4",
+    "fileSize": 15728640,
+    "duration": 120
+}
+
+### 测试视频创建接口 - 不带filePath字段（不触发视频分析）
+POST http://localhost:8190/api/v1/videos
+Content-Type: application/json
+
+{
+    "videoName": "测试视频_无分析",
+    "shootingTime": "2024-01-15T10:30:00",
+    "shootingLocation": "北京市朝阳区",
+    "videoSource": "监控摄像头02",
+    "fileSize": 15728640,
+    "duration": 120
+}
+
+### 查询刚创建的视频
+GET http://localhost:8190/api/v1/videos/1
+
+### 查询视频分析结果（等分析完成后再调用）
+GET http://localhost:8190/api/v1/videos/1/analysis-result
+
+### 分页查询视频
+GET http://localhost:8190/api/v1/videos?page=1&size=10 

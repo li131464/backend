@@ -11,5 +11,5 @@ POST http://localhost:8190/api/aliyun/video-analysis/result/query
 Content-Type: application/json
 
 {
-    "taskId": "f547108b8bc14d30b51a34e60ae47f54"
+    "taskId": "a623fa8f19ab4afab6a5b263f5bc74fc"
 }

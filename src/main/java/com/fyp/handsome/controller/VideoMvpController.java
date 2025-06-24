@@ -12,12 +12,15 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fyp.handsome.dto.Result;
 import com.fyp.handsome.dto.video.VideoInfoCreateRequest;
 import com.fyp.handsome.dto.video.VideoInfoPageResponse;
 import com.fyp.handsome.dto.video.VideoInfoQueryRequest;
 import com.fyp.handsome.dto.video.VideoInfoResponse;
 import com.fyp.handsome.dto.video.VideoInfoUpdateRequest;
+import com.fyp.handsome.entity.VideoAnalysisResult;
+import com.fyp.handsome.mapper.VideoAnalysisResultMapper;
 import com.fyp.handsome.service.VideoMvpService;
 
 import lombok.RequiredArgsConstructor;
@@ -35,6 +38,7 @@ import lombok.extern.slf4j.Slf4j;
 public class VideoMvpController {
 
     private final VideoMvpService videoMvpService;
+    private final VideoAnalysisResultMapper videoAnalysisResultMapper;
 
     /**
      * 创建视频信息
@@ -145,6 +149,37 @@ public class VideoMvpController {
             
         } catch (Exception e) {
             log.error("删除视频信息失败，ID：{}，错误：{}", id, e.getMessage(), e);
+            throw e;
+        }
+    }
+
+    /**
+     * 查询视频分析结果
+     * GET /api/v1/videos/{id}/analysis-result
+     */
+    @GetMapping("/{id}/analysis-result")
+    public Result<VideoAnalysisResult> getVideoAnalysisResult(@PathVariable Long id) {
+        log.info("接收到查询视频分析结果请求，视频ID：{}", id);
+        
+        try {
+            // 查询该视频的分析结果
+            LambdaQueryWrapper<VideoAnalysisResult> queryWrapper = new LambdaQueryWrapper<>();
+            queryWrapper.eq(VideoAnalysisResult::getVideoId, id)
+                       .eq(VideoAnalysisResult::getAnalysisType, "comprehensive_analysis")
+                       .eq(VideoAnalysisResult::getStatus, 1)
+                       .orderByDesc(VideoAnalysisResult::getCreateTime)
+                       .last("LIMIT 1");
+            
+            VideoAnalysisResult analysisResult = videoAnalysisResultMapper.selectOne(queryWrapper);
+            
+            if (analysisResult != null) {
+                return Result.success("查询成功", analysisResult);
+            } else {
+                return Result.success("该视频暂无分析结果", null);
+            }
+            
+        } catch (Exception e) {
+            log.error("查询视频分析结果失败，视频ID：{}，错误：{}", id, e.getMessage(), e);
             throw e;
         }
     }
